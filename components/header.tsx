@@ -39,7 +39,7 @@ const Header = () => {
     text-white bg-black w-[179px] h-[38px] rounded-[100px]
     transition-all duration-300 cursor-pointer
 
-    hover:bg-gray-800 hover:scale-110 hover:shadow-2xl
+    hover:scale-110 hover:shadow-2xl
     active:scale-95
   "
                     >
