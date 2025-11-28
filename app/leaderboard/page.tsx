@@ -3,12 +3,12 @@ import PageClient from "./page-client";
 import { Loader } from "@/components/laoder";
 
 
-export default async function HomePage() {
+export default async function LeaderboardPage() {
 
 
   return (
     <Suspense fallback={<Loader />}>
-      <PageClient/>
+      <PageClient />
     </Suspense>
   );
 }
