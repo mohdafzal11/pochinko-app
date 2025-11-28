@@ -120,3 +120,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.text-kode-monu {
+  font-family: var(--font-geist-mono);
+}
