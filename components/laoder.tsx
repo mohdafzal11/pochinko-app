@@ -16,7 +16,7 @@ export const Loader = () => {
             src="/loop.gif"
             alt="Loading..."
             fill
-            className="object-contain"
+            className="object-contain -rotate-20"
             unoptimized
             priority
           />
