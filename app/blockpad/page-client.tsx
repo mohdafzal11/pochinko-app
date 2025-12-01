@@ -151,8 +151,8 @@ export default function Blockpad() {
           src="/loop-background.png"
           alt="Pachinko Background"
           className="object-cover"
-          height={10}
-          width={300}
+          height={16}
+          width={400}
         />
       </div>
     </div>
