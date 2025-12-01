@@ -7,20 +7,20 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 const games = [
   {
     id: 1,
-    name: 'GAME 1',
-    image: '/game-1.jpeg',
+    name: 'Gacha',
+    image: '/gacha.png',
     description: 'CLICK TO PROCEED'
   },
   {
     id: 2,
-    name: 'GAME 2',
-    image: '/game-2.jpeg',
+    name: 'BlockPad',
+    image: '/blockpad.png',
     description: 'CLICK TO PROCEED'
   },
   {
     id: 3,
-    name: 'GAME 3',
-    image: '/game-3.jpeg',
+    name: 'Pachinko',
+    image: '/pachinko.png',
     description: 'CLICK TO PROCEED'
   }
 ];

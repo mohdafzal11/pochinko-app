@@ -22,11 +22,11 @@ const Header = () => {
                 {/* Desktop Navigation */}
                 <div className='hidden md:flex items-center gap-6 text-muted-foreground'
                 >
-                    <Link href="/machines" className="hover:text-foreground transition-colors text-kode-monu">
+                    <Link href="/" className="hover:text-foreground transition-colors text-kode-monu">
                         MACHINES
                     </Link>
                     <Link href="/dashboard" className="hover:text-foreground transition-colors text-kode-monu">
-                        ダッシュボード
+                       DASHBOARD
                     </Link>
                     <Link href="/marketplace" className="hover:text-foreground transition-colors text-kode-monu">
                         MARKETPLACE
