@@ -3,25 +3,30 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 const games = [
   {
     id: 1,
     name: 'Gacha',
     image: '/gacha.png',
-    description: 'CLICK TO PROCEED'
+    description: 'CLICK TO PROCEED',
+    href: '/gacha'
+
   },
   {
     id: 2,
     name: 'BlockPad',
     image: '/blockpad.png',
-    description: 'CLICK TO PROCEED'
+    description: 'CLICK TO PROCEED',
+    href: '/blockpad'
   },
   {
     id: 3,
     name: 'Pachinko',
     image: '/pachinko.png',
-    description: 'CLICK TO PROCEED'
+    description: 'CLICK TO PROCEED',
+    href: '/pochinko'
   }
 ];
 
@@ -102,18 +107,22 @@ export default function Home() {
 
             {/* TEXT BELOW */}
             <div className='absolute -bottom-5 text-kode-monu space-y-2'>
-              <button
-                className="
-    text-base sm:text-xl md:text-2xl font-bold tracking-[0.15em] uppercase
-    bg-white px-6 sm:px-8 md:px-12 py-2 rounded-full shadow-xl cursor-pointer
+              <Link
+                href={games[currentIndex].href}
 
-    transition-all duration-300 
-    hover:scale-110 hover:shadow-2xl hover:bg-gray-50
-    active:scale-95
-  "
+              >   <div
+                className="
+  text-base sm:text-xl md:text-2xl font-bold tracking-[0.15em] uppercase
+  bg-white px-6 sm:px-8 md:px-12 py-2 rounded-full shadow-xl cursor-pointer
+
+  transition-all duration-300 
+  hover:scale-110 hover:shadow-2xl hover:bg-gray-50
+  active:scale-95
+"
               >
-                {games[currentIndex].name}
-              </button>
+                  {games[currentIndex].name}
+                </div></Link>
+
 
               <div className="text-center text-[10px] sm:text-xs text-gray-400 tracking-[0.2em] uppercase">
                 {games[currentIndex].description}
