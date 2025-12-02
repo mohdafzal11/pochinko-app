@@ -14,7 +14,7 @@ export interface Tile {
   }
   
   export interface Round {
-    id: string;
+    id: number;
     startTime: number;
     endTime: number;
     duration: number;
