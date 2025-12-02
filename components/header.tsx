@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
+import ConnectWallet from './connect-wallet';
+
 const Header = () => {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +28,7 @@ const Header = () => {
                         MACHINES
                     </Link>
                     <Link href="/dashboard" className="hover:text-foreground transition-colors text-kode-monu">
-                       DASHBOARD
+                        DASHBOARD
                     </Link>
                     <Link href="/marketplace" className="hover:text-foreground transition-colors text-kode-monu">
                         MARKETPLACE
@@ -34,17 +36,7 @@ const Header = () => {
                     <Link href="/leaderboard" className="hover:text-foreground transition-colors text-kode-monu">
                         LEADERBOARD
                     </Link>
-                    <button
-                        className="
-    text-white bg-black w-[179px] h-[38px] rounded-[100px]
-    transition-all duration-300 cursor-pointer
-
-    hover:scale-110 hover:shadow-2xl
-    active:scale-95
-  "
-                    >
-                        CONNECT
-                    </button>
+                    <ConnectWallet />
 
                 </div>
 
@@ -90,9 +82,7 @@ const Header = () => {
                         >
                             LEADERBOARD
                         </Link>
-                        <button className="text-white bg-black h-[38px] rounded-[100px] hover:bg-gray-800 transition-colors">
-                            CONNECT
-                        </button>
+                        <ConnectWallet />
                     </div>
                 </div>
             )}
