@@ -1,52 +1,45 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { WebSocketService } from '@/services/web-socket';
-// Auto-detect secure WebSocket based on page protocol
+
 const getWebSocketUrl = () => {
-  const envUrl = process.env.VITE_WS_URL;
-  
-  // If VITE_WS_URL is set, use it
-  if (envUrl) {
+  const envUrl = process.env.NEXT_PUBLIC_WS_URL;
+
+  if (envUrl && typeof window !== "undefined") {
     let wsUrl = envUrl;
-    
-    // Auto-upgrade to WSS if page is HTTPS
+
     if (window.location.protocol === 'https:' && wsUrl.startsWith('ws://')) {
       wsUrl = wsUrl.replace('ws://', 'wss://');
-      console.log('🔒 Upgraded WebSocket to secure:', wsUrl);
     }
-    
-    // Ensure URL has /ws endpoint
+
     if (!wsUrl.endsWith('/ws')) {
       wsUrl = wsUrl.endsWith('/') ? `${wsUrl}ws` : `${wsUrl}/ws`;
     }
-    
-    console.log('🔌 WebSocket URL:', wsUrl);
-    return wsUrl;
-  }
-  
-  // Fallback: construct from current location
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = window.location.hostname;
-  
-  // If on production domain, use API subdomain
-  if (host.includes('0xvoid.dev')) {
-    const wsUrl = `${protocol}//ore-api.0xvoid.dev/ws`;
-    console.log('🔌 WebSocket URL (auto-detected):', wsUrl);
-    return wsUrl;
-  }
-  
-  // Local development fallback
-  const wsUrl = 'ws://localhost:3920/ws';
-  console.log('🔌 WebSocket URL (localhost):', wsUrl);
-  return wsUrl;
-};
 
-const WS_URL = getWebSocketUrl();
+    return wsUrl;
+  }
+
+  if (typeof window !== "undefined") {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const host = window.location.hostname;
+
+    if (host.includes('0xvoid.dev')) {
+      return `${protocol}//ore-api.0xvoid.dev/ws`;
+    }
+
+    return 'ws://localhost:3920/ws';
+  }
+
+  return null; // SSR fallback
+};
 
 export const useWebSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
   const wsRef = useRef<WebSocketService | null>(null);
 
   useEffect(() => {
+    const WS_URL = getWebSocketUrl();
+    if (!WS_URL) return; // prevent SSR crash
+
     const ws = new WebSocketService(WS_URL);
     wsRef.current = ws;
 
@@ -55,9 +48,7 @@ export const useWebSocket = () => {
 
     ws.connect();
 
-    return () => {
-      ws.close();
-    };
+    return () => ws.close();
   }, []);
 
   const emit = useCallback((event: string, data: any) => {
@@ -72,10 +63,5 @@ export const useWebSocket = () => {
     wsRef.current?.off(event, handler);
   }, []);
 
-  return {
-    isConnected,
-    emit,
-    on,
-    off,
-  };
+  return { isConnected, emit, on, off };
 };
