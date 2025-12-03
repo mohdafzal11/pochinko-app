@@ -434,13 +434,16 @@ export default function Blockpad() {
         </div>
 
         {/* ==================== CENTER GRID ==================== */}
-        <div className="h-[500px] flex justify-center">
+        <div className="flex justify-center">
           <GameGrid
+            round={currentRound}
             tiles={(currentRound?.tiles && currentRound.tiles.length > 0) ? currentRound.tiles : defaultTiles}
             selectedTiles={selectedTiles}
             onTileToggle={handleTileSelection}
             disabled={!walletConnected || !wsConnected || currentRound?.status === 'finalizing' || currentRound?.status === 'finalized'}
-          />
+            onPlaceBet={handlePlaceBet}
+            walletAddress={publicKey?.toString() || null}
+            />
         </div>
 
         {/* ==================== RIGHT SIDEBAR ==================== */}
