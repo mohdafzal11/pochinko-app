@@ -52,7 +52,7 @@ export const RoundTimer = ({ round }: RoundTimerProps) => {
             animate={{
                 boxShadow: [
                     "0 0 20px #000",
-                    "0 0 50px #E0CCA9",
+                    "0 0 50px #E2CEAB",
                     "0 0 20px #000"
                 ]
             }}

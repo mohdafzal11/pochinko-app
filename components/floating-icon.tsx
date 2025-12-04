@@ -21,7 +21,7 @@ const FloatingIcon = ({ Icon, color, label, offset, index, isRightSide = false }
                 : (index % 2 === 0 ? [0, 12, -12, 0] : [0, -12, 12, 0]),
             transition: { duration: 0.5 },
         }}
-        className={`flex flex-col items-center gap-3 ${offset ? (isRightSide ? "lg:pr-40" : "lg:pl-40") : ""
+        className={`flex flex-col items-center gap-3 ${offset ? (isRightSide ? "pl-20" : "pr-20") : ""
             }`}
     >
         <motion.div

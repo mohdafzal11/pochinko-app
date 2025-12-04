@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RoundTimer } from './round-timer';
 import { Dialog, DialogTitle, DialogDescription, DialogContent, DialogHeader } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { API_ENDPOINTS } from '@/config/api';
 
 interface GameGridProps {
@@ -115,11 +114,12 @@ const GameGrid = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-            className="relative bg-[#EE342C] w-full max-w-xl mx-auto rounded-[40px] shadow-2xl overflow-hidden
-         border-8 border-black/10"
+            className="relative bg-[#EE3E35] w-full max-w-xl mx-auto rounded-[40px] shadow-2xl overflow-hidden
+         border-8 border-black/10 py-6 px-4"
         >
             {/* Top Bar */}
             <RoundTimer round={round} />
+
             {round &&
                 <div className='w-full flex items-center justify-between px-4 pt-2'>
                     <div className="w-full flex items-center justify-between gap-6">
@@ -148,7 +148,7 @@ const GameGrid = ({
             }
 
             {/* 5×5 Grid */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-2 sm:gap-4 px-4 sm:px-6 py-2">
+            <div className="grid grid-cols-5 grid-rows-5 gap-2 sm:gap-4 px-4 sm:px-6 py-4">
                 {tiles.map((tile, index) => {
                     const isSelected = selectedTiles.includes(tile.id);
                     const isHovered = hoveredTile === tile.id;
@@ -172,7 +172,7 @@ const GameGrid = ({
                             onMouseEnter={() => !disabled && setHoveredTile(tile.id)}
                             onMouseLeave={() => setHoveredTile(null)}
                             disabled={disabled}
-                            className={`relative rounded-xl shadow-xl overflow-hidden transition-all duration-300 md:w-20 md:h-16
+                            className={`relative rounded-md shadow-xl overflow-hidden transition-all duration-300 md:w-20 md:h-16
                   ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
                   ${isSelected ? 'ring-4 ring-[#fef08a] ring-offset-4 ring-offset-[#c41e3a]' : ''}
                 `}
@@ -207,7 +207,7 @@ const GameGrid = ({
                                     transition={{ duration: 0.6, repeat: isSelected ? Infinity : 0 }}
                                     className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
                                 >
-                                    {tile.position}
+                                    {/* {tile.position} */}
                                 </motion.span>
 
                                 {/* Sparkles Icon - Absolute, Never Affects Layout */}
@@ -421,27 +421,26 @@ const GameGrid = ({
                 </DialogContent>
             </Dialog>
 
+            
+
 
             {/* Bottom Section - Bet Input + Place Bet */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                className="px-6 pb-6"
+                className=""
             >
                 <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
                     <div className="flex-1 text-center sm:text-left">
-                        <motion.p
-                            animate={{ textShadow: ["0 0 10px #fef08a", "0 0 30px #fef08a", "0 0 10px #fef08a"] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                            className="text-2xl text-[#fef08a] font-black tracking-[0.2em] drop-shadow-2xl"
-                        >
+                        <motion.p className="outline-text text-3xl tracking-wide">
                             ブロックパッド
                         </motion.p>
+
                         <motion.p
                             initial={{ x: -50 }}
                             animate={{ x: 0 }}
-                            className="text-3xl sm:text-5xl text-[#fef08a] font-black tracking-wider drop-shadow-2xl"
+                            className="text-5xl  text-[#E2CEAB] font-black tracking-wider drop-shadow-2xl"
                         >
                             BLOCKPAD
                         </motion.p>
@@ -462,20 +461,6 @@ const GameGrid = ({
                             <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-[#c41e3a]">SOL</span>
                         </div>
 
-                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="w-full sm:w-auto">
-                            <Button
-                                onClick={handlePlaceBet}
-                                disabled={disabled || !betAmount || parseFloat(betAmount) <= 0}
-                                className="w-full bg-gradient-to-r from-[#fef08a] to-[#fde68a] hover:from-[#fbbf24] hover:to-[#f59e0b] 
-                                           text-[#c41e3a] font-black text-xl px-10 py-7 rounded-2xl shadow-2xl 
-                                           border-4 border-[#c41e3a] disabled:opacity-50 disabled:cursor-not-allowed
-                                           flex items-center justify-center gap-3"
-                            >
-                                <Sparkles className="w-8 h-8 animate-pulse" />
-                                PLACE BET
-                                <Sparkles className="w-8 h-8 animate-pulse" />
-                            </Button>
-                        </motion.div>
                     </div>
                 </div>
             </motion.div>

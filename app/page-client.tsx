@@ -17,7 +17,7 @@ const games = [
   {
     id: 2,
     name: 'BlockPad',
-    image: '/blockpad.png',
+    image: '/blockpad.jpeg',
     description: 'CLICK TO PROCEED',
     href: '/blockpad'
   },

@@ -9,8 +9,9 @@ import { Round, Tile, HistoryRound } from '@/types/game';
 import { toast } from 'sonner';
 import GameGrid from '@/components/game-grid';
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Music, HelpCircle, Package, Store } from "lucide-react";
+import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles } from "lucide-react";
 import FloatingIcon from '@/components/floating-icon';
+import { Button } from '@/components/ui/button';
 
 export default function Blockpad() {
 
@@ -316,15 +317,15 @@ export default function Blockpad() {
 
 
   const leftIcons = [
-    { Icon: Gamepad2, color: "bg-[#FFD374]", label: "CONSOLE", offset: true },
-    { Icon: Music, color: "bg-[#DD5622]", label: "MUSIC", offset: false },
-    { Icon: HelpCircle, color: "bg-[#749CFF]", label: "HOW TO PLAY?", offset: true },
+    { Icon: Gamepad2, color: "bg-[#FFD374]", label: "CONSOLE", offset: false },
+    { Icon: Music, color: "bg-[#DD5622]", label: "MUSIC", offset: true },
+    { Icon: HelpCircle, color: "bg-[#749CFF]", label: "HOW TO PLAY?", offset: false },
   ];
 
   const rightIcons = [
-    { Icon: Package, color: "bg-[#FF7492]", label: "INVENTORY", offset: true },
-    { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: false },
-    { Icon: Gamepad2, color: "bg-[#DAE998]", label: "MACHINES", offset: true },
+    { Icon: Package, color: "bg-[#FF7492]", label: "INVENTORY", offset: false },
+    { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: true },
+    { Icon: Gamepad2, color: "bg-[#DAE998]", label: "MACHINES", offset: false },
   ];
 
 
@@ -353,8 +354,8 @@ export default function Blockpad() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 font-mono">
-      <main className="w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] items-start">
+    <div className="min-h-screen font-mono">
+      <main className="w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-4 items-start">
 
         {/* ==================== LEFT SIDEBAR ==================== */}
         <div className="hidden lg:block space-y-16">
@@ -382,7 +383,7 @@ export default function Blockpad() {
                     className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0"
                   >
                     <div className="relative flex-shrink-0">
-                      <div className={`w-10 h-10 rounded-full bg-white`} />
+                      <div className={`w-10 h-10 border-1 rounded-full bg-white`} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -392,8 +393,8 @@ export default function Blockpad() {
                         </p>
                       ) : (
                         <>
-                          <p className="font-bold text-gray-800 truncate">{activity.user}</p>
-                          <p className="text-sm text-gray-600 truncate">{activity.text}</p>
+                          <p className="font-bold text-muted-foreground truncate">{activity.user}</p>
+                          <p className="text-sm text-muted-foreground truncate">{activity.text}</p>
                         </>
                       )}
                     </div>
@@ -414,7 +415,7 @@ export default function Blockpad() {
           </motion.div>
 
           {/* Floating Icons - LEFT */}
-          <div className="flex flex-col items-center gap-12 mt-12">
+          <div className="flex flex-col items-end gap-12 mt-12">
             {leftIcons.map((icon, i) => (
               <FloatingIcon key={icon.label} {...icon} index={i} />
             ))}
@@ -422,7 +423,7 @@ export default function Blockpad() {
         </div>
 
         {/* ==================== CENTER GRID ==================== */}
-        <div className="flex justify-center">
+        <div className="relative flex justify-center">
           <GameGrid
             round={currentRound}
             tiles={(currentRound?.tiles && currentRound.tiles.length > 0) ? currentRound.tiles : defaultTiles}
@@ -432,6 +433,16 @@ export default function Blockpad() {
             onPlaceBet={handlePlaceBet}
             walletAddress={publicKey?.toString() || null}
           />
+
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-white rounded-full absolute -bottom-10 z-[999999]  w-full sm:w-auto">
+            <Button
+              onClick={() => handlePlaceBet(parseFloat(betAmount))}
+              disabled={!walletConnected || !wsConnected || currentRound?.status === 'finalizing' || currentRound?.status === 'finalized'}
+              className="w-full bg-white text-lg text-black px-20 py-7 rounded-full disabled:cursor-not-allowed"
+            >
+              LET’S PLAY
+            </Button>
+          </motion.div>
         </div>
 
         {/* ==================== RIGHT SIDEBAR ==================== */}
@@ -476,7 +487,7 @@ export default function Blockpad() {
             </div>
           </motion.div>
 
-          <div className="flex flex-col items-center gap-12">
+          <div className="flex flex-col items-start gap-12">
             {rightIcons.map((icon, i) => (
               <FloatingIcon key={icon.label} {...icon} index={i} isRightSide />
             ))}
