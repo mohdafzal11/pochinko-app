@@ -316,15 +316,15 @@ export default function Blockpad() {
 
 
   const leftIcons = [
-    { Icon: Gamepad2, color: "bg-yellow-300", label: "CONSOLE", offset: true },
-    { Icon: Music, color: "bg-orange-500", label: "MUSIC", offset: false },
-    { Icon: HelpCircle, color: "bg-blue-500", label: "HOW TO PLAY?", offset: true },
+    { Icon: Gamepad2, color: "bg-[#FFD374]", label: "CONSOLE", offset: true },
+    { Icon: Music, color: "bg-[#DD5622]", label: "MUSIC", offset: false },
+    { Icon: HelpCircle, color: "bg-[#749CFF]", label: "HOW TO PLAY?", offset: true },
   ];
 
   const rightIcons = [
-    { Icon: Package, color: "bg-pink-300", label: "INVENTORY", offset: true },
-    { Icon: Store, color: "bg-pink-400", label: "MARKETPLACE", offset: false },
-    { Icon: Gamepad2, color: "bg-lime-300", label: "MACHINES", offset: true },
+    { Icon: Package, color: "bg-[#FF7492]", label: "INVENTORY", offset: true },
+    { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: false },
+    { Icon: Gamepad2, color: "bg-[#DAE998]", label: "MACHINES", offset: true },
   ];
 
 
@@ -354,7 +354,7 @@ export default function Blockpad() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-gray-200 font-mono">
-      <main className="w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-10 items-start">
+      <main className="w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] items-start">
 
         {/* ==================== LEFT SIDEBAR ==================== */}
         <div className="hidden lg:block space-y-16">
@@ -364,7 +364,7 @@ export default function Blockpad() {
             initial={{ opacity: 0, x: -80 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
-            className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/30 overflow-hidden"
+            className="bg-[#E5DFDF24] p-2 border-gray-300 border-1 overflow-hidden rounded-md"
           >
             <div className="relative h-[200px]">
               <AnimatePresence mode="popLayout">
@@ -382,19 +382,7 @@ export default function Blockpad() {
                     className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0"
                   >
                     <div className="relative flex-shrink-0">
-                      <div className={`w-10 h-10 rounded-full ${activity.type === "win" ? "bg-gradient-to-br from-green-400 to-emerald-600" : "bg-gray-400"}`} />
-                      {activity.type === "win" && (
-                        <motion.div
-                          animate={{ scale: [1, 1.4, 1] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                          className="absolute inset-0 rounded-full bg-green-400/40"
-                        />
-                      )}
-                      {index === 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold animate-pulse">
-                          NEW
-                        </span>
-                      )}
+                      <div className={`w-10 h-10 rounded-full bg-white`} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -443,7 +431,7 @@ export default function Blockpad() {
             disabled={!walletConnected || !wsConnected || currentRound?.status === 'finalizing' || currentRound?.status === 'finalized'}
             onPlaceBet={handlePlaceBet}
             walletAddress={publicKey?.toString() || null}
-            />
+          />
         </div>
 
         {/* ==================== RIGHT SIDEBAR ==================== */}
@@ -454,35 +442,34 @@ export default function Blockpad() {
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-right pr-0 lg:pr-10"
+            className="text-right"
           >
-            <div className="h-52 flex items-center justify-end">
+            <div className="h-[200px] w-full flex items-center justify-start">
               <div className="max-w-sm ml-auto space-y-4">
-                <motion.p className="text-sm lg:text-base text-gray-700 font-medium leading-relaxed">
+                <motion.p className="text-sm lg:text-base space-y-2 text-gray-700 font-medium leading-relaxed">
                   <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-                    className="block text-pink-600 font-black text-xl lg:text-2xl uppercase tracking-wider">
-                    LET YOUR BALLS DROP!
+                    className="block text-muted-foreground text-sm uppercase">
+                    Let your balls drop! watch them bounce and hit massive jackpots!
                   </motion.span>
 
-                  <motion.span initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
-                    className="block text-gray-800 font-bold">
-                    WATCH THEM BOUNCE AND HIT
-                    <motion.span
-                      animate={{ scale: [1, 1.12, 1], color: ["#f59e0b", "#ef4444", "#f59e0b"] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="text-amber-500 ml-2"
-                    >
-                      MASSIVE JACKPOTS!
-                    </motion.span>
-                  </motion.span>
 
                   <motion.span
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.8, duration: 1.2 }}
-                    className="block mt-6 text-2xl lg:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-red-600"
+                    className="block text-muted-foreground text-sm uppercase"
                   >
-                    LET'S PLAY PACHINKO!
+                    The most thrilling onchain pachinko experience.
+                  </motion.span>
+
+
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.8, duration: 1.2 }}
+                    className="block mt-6 text-sm uppercase text-muted-foreground"
+                  >
+                    Let’s play Pachinko
                   </motion.span>
                 </motion.p>
               </div>
