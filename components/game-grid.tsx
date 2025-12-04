@@ -115,7 +115,7 @@ const GameGrid = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
             className="relative bg-[#EE3E35] w-full max-w-xl mx-auto rounded-[40px] shadow-2xl overflow-hidden
-         border-8 border-black/10 py-6 px-4"
+         border-8 border-black/10 py-3 px-4"
         >
             {/* Top Bar */}
             <RoundTimer round={round} />
@@ -148,7 +148,7 @@ const GameGrid = ({
             }
 
             {/* 5×5 Grid */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-2 sm:gap-4 px-4 sm:px-6 py-4">
+            <div className="grid grid-cols-5 grid-rows-5 gap-2 sm:gap-4 px-4 sm:px-6 py-2">
                 {tiles.map((tile, index) => {
                     const isSelected = selectedTiles.includes(tile.id);
                     const isHovered = hoveredTile === tile.id;
