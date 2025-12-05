@@ -24,7 +24,7 @@ const games = [
   {
     id: 3,
     name: 'Pachinko',
-    image: '/pachinko.png',
+    image: '/pachinko.jpeg',
     description: 'CLICK TO PROCEED',
     href: '/pachinko'
   }

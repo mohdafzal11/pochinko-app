@@ -353,9 +353,16 @@ export default function Blockpad() {
     return () => clearInterval(interval);
   }, []);
 
+  const [animateCircle, setAnimateCircle] = useState(false);
+
+  const handleClick = () => {
+    setAnimateCircle(true);
+    handlePlaceBet(parseFloat(betAmount));
+  };
+
   return (
     <div className="min-h-screen font-mono">
-      <main className="w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-4 items-start">
+      <main className="relative w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-4 items-start">
 
         {/* ==================== LEFT SIDEBAR ==================== */}
         <div className="hidden lg:block space-y-16">
@@ -367,7 +374,7 @@ export default function Blockpad() {
             transition={{ duration: 0.7 }}
             className="bg-[#E5DFDF24] p-2 border-gray-300 border-1 overflow-hidden rounded-md"
           >
-            <div className="relative h-[200px]">
+            <div className="relative h-[180px]">
               <AnimatePresence mode="popLayout">
                 {activities.map((activity, index) => (
                   <motion.div
@@ -380,7 +387,7 @@ export default function Blockpad() {
                       layout: { duration: 0.4 },
                       y: { type: "spring", stiffness: 400, damping: 30 },
                     }}
-                    className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0"
+                    className="flex items-center gap-4 py-2 border-b border-gray-100 last:border-0"
                   >
                     <div className="relative flex-shrink-0">
                       <div className={`w-10 h-10 border-1 rounded-full bg-white`} />
@@ -393,7 +400,7 @@ export default function Blockpad() {
                         </p>
                       ) : (
                         <>
-                          <p className="font-bold text-muted-foreground truncate">{activity.user}</p>
+                          <p className="font-sm text-muted-foreground truncate">{activity.user}</p>
                           <p className="text-sm text-muted-foreground truncate">{activity.text}</p>
                         </>
                       )}
@@ -415,7 +422,7 @@ export default function Blockpad() {
           </motion.div>
 
           {/* Floating Icons - LEFT */}
-          <div className="flex flex-col items-end gap-12 mt-12">
+          <div className="flex flex-col items-end gap-20">
             {leftIcons.map((icon, i) => (
               <FloatingIcon key={icon.label} {...icon} index={i} />
             ))}
@@ -423,27 +430,34 @@ export default function Blockpad() {
         </div>
 
         {/* ==================== CENTER GRID ==================== */}
-        <div className="relative flex justify-center">
-          <GameGrid
-            round={currentRound}
-            tiles={(currentRound?.tiles && currentRound.tiles.length > 0) ? currentRound.tiles : defaultTiles}
-            selectedTiles={selectedTiles}
-            onTileToggle={handleTileSelection}
-            disabled={!walletConnected || !wsConnected || currentRound?.status === 'finalizing' || currentRound?.status === 'finalized'}
-            onPlaceBet={handlePlaceBet}
-            walletAddress={publicKey?.toString() || null}
-          />
+        <div className="relative h-[820px] w-full">
+          <img src="/pachinko.jpeg" alt="" className='h-full w-full object-contain' />
 
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-white rounded-full absolute -bottom-10 z-[999999]  w-full sm:w-auto">
-            <Button
-              onClick={() => handlePlaceBet(parseFloat(betAmount))}
-              disabled={!walletConnected || !wsConnected || currentRound?.status === 'finalizing' || currentRound?.status === 'finalized'}
-              className="w-full bg-white text-lg text-black px-20 py-7 rounded-full disabled:cursor-not-allowed"
-            >
-              LET’S PLAY
-            </Button>
-          </motion.div>
+          <div className="absolute bottom-44 z-10 w-full">
+            <div className="flex items-center justify-center">
+              <Button
+                onClick={handleClick}
+                disabled={
+                  !walletConnected ||
+                  !wsConnected ||
+                  currentRound?.status === "finalizing" ||
+                  currentRound?.status === "finalized"
+                }
+                className="relative bg-white hover:bg-white hover:scale-105 text-lg text-black px-20 py-7 rounded-full disabled:cursor-not-allowed overflow-hidden"
+              >
+                <motion.div
+                  initial={{ x: -70 }}
+                  animate={animateCircle ? { x: 100 } : { x: -100 }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                  className="absolute w-12 h-12 rounded-full bg-white shadow-md border"
+                />
+
+                LET’S PLAY
+              </Button>
+            </div>
+          </div>
         </div>
+
 
         {/* ==================== RIGHT SIDEBAR ==================== */}
         <div className="hidden lg:block space-y-16">
@@ -455,11 +469,11 @@ export default function Blockpad() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-right"
           >
-            <div className="h-[200px] w-full flex items-center justify-start">
+            <div className="h-[200px] w-full flex justify-start">
               <div className="max-w-sm ml-auto space-y-4">
                 <motion.p className="text-sm lg:text-base space-y-2 text-gray-700 font-medium leading-relaxed">
                   <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-                    className="block text-muted-foreground text-sm uppercase">
+                    className="block text-muted-foreground text-xs uppercase">
                     Let your balls drop! watch them bounce and hit massive jackpots!
                   </motion.span>
 
@@ -468,7 +482,7 @@ export default function Blockpad() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.8, duration: 1.2 }}
-                    className="block text-muted-foreground text-sm uppercase"
+                    className="block text-muted-foreground text-xs uppercase"
                   >
                     The most thrilling onchain pachinko experience.
                   </motion.span>
@@ -478,7 +492,7 @@ export default function Blockpad() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1.8, duration: 1.2 }}
-                    className="block mt-6 text-sm uppercase text-muted-foreground"
+                    className="block mt-6 text-xs uppercase text-muted-foreground"
                   >
                     Let’s play Pachinko
                   </motion.span>
@@ -487,7 +501,7 @@ export default function Blockpad() {
             </div>
           </motion.div>
 
-          <div className="flex flex-col items-start gap-12">
+          <div className="flex flex-col items-start gap-20">
             {rightIcons.map((icon, i) => (
               <FloatingIcon key={icon.label} {...icon} index={i} isRightSide />
             ))}
@@ -495,15 +509,13 @@ export default function Blockpad() {
         </div>
       </main>
 
-      {/* Prize Pool & Background */}
-      <div className="w-full mt-20 py-10 bg-gray-300/50 backdrop-blur">
-        <div className="mx-auto px-8 flex flex-wrap items-center justify-center gap-10 sm:gap-20 text-center">
-          <p className="text-gray-700 font-bold text-lg">TODAY'S PRIZE POOL</p>
-          <div className="flex flex-wrap gap-10 text-4xl sm:text-5xl font-black text-orange-600">
-            <span>+ $20,000</span>
-            <span>+ $20,000</span>
-            <span className="text-orange-500">+ $20,000</span>
-          </div>
+      {/* Prize Pool*/}
+      <div className="absolute bottom-0 w-full py-4 bg-[#D9D9D9]">
+        <div className="mx-auto px-8 flex items-center justify-center gap-10 sm:gap-20 text-center">
+          <p className="text-gray-600 font-semibold text-xl md:text-2xl">TODAY'S PRIZE POOL</p>
+          <span className="text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
+          <span className="hidden md:block text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
+          <span className="hidden lg:block text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
         </div>
       </div>
 
