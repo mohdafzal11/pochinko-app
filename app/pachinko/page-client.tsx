@@ -38,7 +38,7 @@ export default function Blockpad() {
   const [showHistory, setShowHistory] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [history, setHistory] = useState<HistoryRound[]>([]);
-    const [animateCircle, setAnimateCircle] = useState(false);
+  const [animateCircle, setAnimateCircle] = useState(false);
 
 
   const [activities, setActivities] = useState<any[]>([
@@ -424,7 +424,7 @@ export default function Blockpad() {
         <div className="relative h-[820px] w-full">
           <img src="/pachinko.jpeg" alt="" className='h-full w-full object-contain' />
 
-          <div className="absolute bottom-44 z-10 w-full">
+          <div className="absolute bottom-44 z-50 w-full">
             <div className="flex items-center justify-center">
               <Button
                 onClick={handleClick}
@@ -446,6 +446,11 @@ export default function Blockpad() {
                 LET’S PLAY
               </Button>
             </div>
+          </div>
+
+
+          <div className="flex itemsw-full absolute top-0 z-40  h-[620px]">
+            <img src="/pachinko-balls.gif" alt="Pachinko Background" className="object-cover h-full" />
           </div>
         </div>
 
@@ -501,7 +506,7 @@ export default function Blockpad() {
       </main>
 
       {/* Prize Pool*/}
-      <div className="absolute bottom-0 w-full py-4 bg-[#D9D9D9]">
+      <div className="absolute z-10 bottom-0 w-full py-4 bg-[#D9D9D9]">
         <div className="mx-auto px-8 flex items-center justify-center gap-10 sm:gap-20 text-center">
           <p className="text-gray-600 font-semibold text-xl md:text-2xl">TODAY'S PRIZE POOL</p>
           <span className="text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
@@ -510,8 +515,10 @@ export default function Blockpad() {
         </div>
       </div>
 
+
+
       <div className="px-8">
-        <Image src="/loop-background.png" alt="Pachinko Background" className="object-cover" height={16} width={400} />
+        <Image src="/loop-background.png" alt="Pachinko Background" className="object-cover" height={60} width={400} />
       </div>
     </div>
   );
