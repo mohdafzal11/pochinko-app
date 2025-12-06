@@ -9,7 +9,7 @@ const games = [
   {
     id: 1,
     name: 'Gacha',
-    image: '/gacha.png',
+    image: '/gacha.jpeg',
     description: 'CLICK TO PROCEED',
     href: '/gacha'
 
@@ -61,7 +61,6 @@ export default function Home() {
     overflow-hidden transition-all duration-700 ease-out
     -translate-x-6
     hover:scale-105 hover:-translate-y-2
-    ${isGame1(getPreviousIndex()) ? "rotate-25" : "rotate-0"}
   `}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/100 via-white/60 to-transparent z-20 pointer-events-none" />
@@ -150,7 +149,6 @@ export default function Home() {
     overflow-hidden transition-all duration-700 ease-out
     translate-x-6
     hover:scale-105 hover:-translate-y-2
-    ${isGame1(getNextIndex()) ? "-rotate-25" : "rotate-0"}
   `}
             >
 
