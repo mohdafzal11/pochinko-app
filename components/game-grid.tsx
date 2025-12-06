@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { Sparkles, Clock, History, Users, Trophy, X, ExternalLink } from 'lucide-react';
 import { Tile, Round } from '@/types/game';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { RoundTimer } from './round-timer';
 import { Dialog, DialogTitle, DialogDescription, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { API_ENDPOINTS } from '@/config/api';
+import RoundTimer from './round-timer';
 
 interface GameGridProps {
     round: Round | null;
@@ -115,12 +114,12 @@ const GameGrid = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
             className="relative bg-[#EE3E35] w-full max-w-xl mx-auto rounded-[40px] shadow-2xl overflow-hidden
-         border-8 border-black/10 py-3 px-4"
+         border-8 border-black/10 py-2 px-4"
         >
             {/* Top Bar */}
             <RoundTimer round={round} />
 
-            {round &&
+            {/* {round &&
                 <div className='w-full flex items-center justify-between px-4 pt-2'>
                     <div className="w-full flex items-center justify-between gap-6">
                         <div className="flex items-center gap-3 text-[#E0CCA9] font-bold">
@@ -145,10 +144,10 @@ const GameGrid = ({
                     </div>
                 </div>
 
-            }
+            } */}
 
             {/* 5×5 Grid */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-2 sm:gap-4 px-4 sm:px-6 py-2">
+            <div className="grid grid-cols-5 grid-rows-5 gap-3 px-12 sm:px-16 py-2">
                 {tiles.map((tile, index) => {
                     const isSelected = selectedTiles.includes(tile.id);
                     const isHovered = hoveredTile === tile.id;
@@ -172,9 +171,9 @@ const GameGrid = ({
                             onMouseEnter={() => !disabled && setHoveredTile(tile.id)}
                             onMouseLeave={() => setHoveredTile(null)}
                             disabled={disabled}
-                            className={`relative rounded-md shadow-xl overflow-hidden transition-all duration-300 md:w-20 md:h-16
+                            className={`relative rounded-sm overflow-hidden transition-all duration-300 h-16 w-16 border-[1px] border-[#3d2817]
                   ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
-                  ${isSelected ? 'ring-4 ring-[#fef08a] ring-offset-4 ring-offset-[#c41e3a]' : ''}
+                  ${isSelected ? 'ring-4 ring-[#fef08a] ring-offset-2 ring-offset-[#c41e3a]' : ''}
                 `}
                         >
                             <motion.div
@@ -183,7 +182,7 @@ const GameGrid = ({
                                         ? "#fde68a"
                                         : isHovered && !disabled
                                             ? "#fde68a"
-                                            : "#fef3c7",
+                                            : "#e8d4b8",
                                 }}
                                 className="absolute inset-0"
                             />
@@ -421,7 +420,7 @@ const GameGrid = ({
                 </DialogContent>
             </Dialog>
 
-            
+
 
 
             {/* Bottom Section - Bet Input + Place Bet */}
@@ -431,7 +430,7 @@ const GameGrid = ({
                 transition={{ delay: 0.6 }}
                 className=""
             >
-                <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4 px-6 py-2">
                     <div className="flex-1 text-center sm:text-left">
                         <motion.p className="outline-text text-3xl tracking-wide">
                             ブロックパッド
@@ -440,44 +439,90 @@ const GameGrid = ({
                         <motion.p
                             initial={{ x: -50 }}
                             animate={{ x: 0 }}
-                            className="text-5xl  text-[#E2CEAB] font-black tracking-wider drop-shadow-2xl"
+                            className="text-5xl  text-[#E2CEAB] font-black tracking-widest drop-shadow-2xl"
                         >
                             BLOCKPAD
                         </motion.p>
                     </div>
 
-                    {/* Bet Input + Place Bet */}
-                    <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
-                        <div className="relative w-full sm:w-auto">
-                            <Input
-                                type="number"
-                                value={betAmount}
-                                onChange={(e) => setBetAmount(e.target.value)}
-                                step="0.01"
-                                min="0.01"
-                                className="w-full sm:w-32 h-14 pr-12 text-2xl font-black text-[#c41e3a] bg-[#fef3c7] border-4 border-[#c41e3a] rounded-2xl shadow-xl focus:ring-4 focus:ring-[#fef08a]"
-                                placeholder="0.1"
+                    <div className=" grid grid-cols-2 gap-3">
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0, y: 60, scale: 0.8 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            className={`relative rounded-sm overflow-hidden transition-all duration-300 h-10 w-10 border-[1px] border-[#3d2817]
+                  
+                `}
+                        >
+                            <motion.div
+                                animate={{
+                                    backgroundColor: "#e8d4b8"
+                                }}
+                                className="absolute inset-0"
                             />
-                            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-2xl font-black text-[#c41e3a]">SOL</span>
-                        </div>
 
+                            <div className="relative h-full flex flex-col items-center justify-center p-3">
+                                <motion.span
+                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
+                                >
+                                    {/* {tile.position} */}
+                                </motion.span>
+
+                            </div>
+                        </motion.div>
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0, y: 60, scale: 0.8 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            className={`relative rounded-sm overflow-hidden transition-all duration-300 h-10 w-10 border-[1px] border-[#3d2817]
+                  
+                `}
+                        >
+                            <motion.div
+                                animate={{
+                                    backgroundColor: "#e8d4b8"
+                                }}
+                                className="absolute inset-0"
+                            />
+
+                            <div className="relative h-full flex flex-col items-center justify-center p-3">
+                                <motion.span
+                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
+                                >
+                                    {/* {tile.position} */}
+                                </motion.span>
+
+                            </div>
+                        </motion.div>
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0, y: 60, scale: 0.8 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            className={`relative rounded-sm overflow-hidden transition-all duration-300 h-10 w-10 border-[1px] border-[#3d2817]
+                  
+                `}
+                        >
+                            <motion.div
+                                animate={{
+                                    backgroundColor: "#e8d4b8"
+                                }}
+                                className="absolute inset-0"
+                            />
+
+                            <div className="relative h-full flex flex-col items-center justify-center p-3">
+                                <motion.span
+                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
+                                >
+                                    {/* {tile.position} */}
+                                </motion.span>
+
+                            </div>
+                        </motion.div>
                     </div>
+
                 </div>
             </motion.div>
 
-            {/* Breathing Background */}
-            <motion.div
-                animate={{
-                    background: [
-                        "radial-gradient(circle at 50% 50%, #c41e3a 0%, #991b1b 100%)",
-                        "radial-gradient(circle at 30% 70%, #e11d48 0%, #991b1b 100%)",
-                        "radial-gradient(circle at 70% 30%, #dc2626 0%, #991b1b 100%)",
-                        "radial-gradient(circle at 50% 50%, #c41e3a 0%, #991b1b 100%)",
-                    ],
-                }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 -z-10"
-            />
         </motion.div>
     );
 };

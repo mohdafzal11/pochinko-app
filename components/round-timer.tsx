@@ -7,7 +7,7 @@ interface RoundTimerProps {
     round: Round | null;
 }
 
-export const RoundTimer = ({ round }: RoundTimerProps) => {
+export default function RoundTimer({ round }: RoundTimerProps) {
     const [timeLeft, setTimeLeft] = useState(0);
     const [progress, setProgress] = useState(100);
 
@@ -40,66 +40,95 @@ export const RoundTimer = ({ round }: RoundTimerProps) => {
             <motion.div
                 animate={{ boxShadow: ["0 0 20px #000", "0 0 40px #000", "0 0 20px #000"] }}
                 transition={{ duration: 3, repeat: Infinity }}
-                className="h-16 mx-4 bg-black rounded-2xl border-4 border-[#E0CCA9] flex items-center justify-center flex shadow-inner"
+                className="h-20 mx-8 my-2 rounded-lg relative p-[5px]"
+                style={{
+                    background: '#d4b896',
+                }}
             >
-                <p className="text-[#E0CCA9] font-bold text-lg tracking-wider">WAITING FOR NEXT ROUND...</p>
+                <div
+                    className="w-full h-full rounded-md relative overflow-hidden"
+                    style={{
+                        background: 'linear-gradient(to bottom, #4a4742 0%, #3a3530 20%, #2d2b26 50%, #242220 80%, #1a1815 100%)',
+                        border: '1px solid #2a2520',
+                    }}
+                >
+                    <div
+                        className="absolute top-0 left-0 right-0 h-[2px]"
+                        style={{
+                            background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)'
+                        }}
+                    />
+
+                    <div className="relative z-10 h-full flex items-center justify-center">
+                        <p className="text-[#E0CCA9] font-bold text-lg tracking-wider">WAITING FOR NEXT ROUND...</p>
+                    </div>
+                </div>
             </motion.div>
         );
     }
 
     return (
         <motion.div
-            animate={{
-                boxShadow: [
-                    "0 0 20px #000",
-                    "0 0 50px #E2CEAB",
-                    "0 0 20px #000"
-                ]
-            }}
             transition={{ duration: 3, repeat: Infinity }}
-            className="h-16 mx-4 bg-black rounded-2xl border-4 border-[#E0CCA9] shadow-inner overflow-hidden relative"
+            className="h-20 mx-8 my-2 rounded-lg relative p-[5px]"
+            style={{
+                background: '#d4b896',
+            }}
         >
-            {/* Background Gradient Pulse */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#E0CCA9]/10 to-transparent animate-pulse" />
+            <div
+                className="w-full h-full rounded-lg relative overflow-hidden"
+                style={{
+                    background: 'linear-gradient(to bottom, #4a4742 0%, #3a3530 20%, #2d2b26 50%, #242220 80%, #1a1815 100%)',
+                    border: '1px solid #2a2520',
+                }}
+            >
+                {/* Top highlight */}
+                <div
+                    className="absolute top-0 left-0 right-0 h-[2px]"
+                    style={{
+                        background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)'
+                    }}
+                />
 
-            <div className="h-full flex items-center justify-between px-2 md:px-6 text-[#E0CCA9] font-bold">
-                {/* Left: Round + Timer */}
-                <div className="flex items-center gap-6">
-                    <div className="text-lg md:text-3xl font-black tracking-widest">
-                        {formatTime(timeLeft)}
+                {/* Background Gradient Pulse */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#E0CCA9]/10 to-transparent animate-pulse" />
+
+                <div className="relative z-10 h-full flex items-center justify-between px-2 md:px-6 text-[#E0CCA9] font-bold">
+                    {/* Left: Round + Timer */}
+                    <div className="flex items-center gap-6">
+                        <div className="text-lg md:text-3xl font-black tracking-widest">
+                            {formatTime(timeLeft)}
+                        </div>
+                    </div>
+
+                    {/* Right: Stats */}
+                    <div className="flex items-center gap-8 text-right">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
+                            <span className="text-lg">{round.totalVolume.toFixed(2)} SOL</span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Trophy className="w-6 h-6 text-yellow-500" />
+                            <span className="text-xl font-black">{round.prizePool.toFixed(2)}</span>
+                        </div>
                     </div>
                 </div>
 
-
-                {/* Right: Stats */}
-                <div className="flex items-center gap-8 text-right">
-                    <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-yellow-400 animate-pulse" />
-                        <span className="text-lg">{round.totalVolume.toFixed(2)} SOL</span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Trophy className="w-6 h-6 text-yellow-500" />
-                        <span className="text-xl font-black">{round.prizePool.toFixed(2)}</span>
-                    </div>
-
-
+                {/* Status Badge */}
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20">
+                    <span className={`
+                        px-4 py-1 rounded-full text-xs font-bold tracking-wider
+                        ${round.status === 'active' ? 'bg-green-500/30 text-green-300' : ''}
+                        ${round.status === 'waiting' ? 'bg-yellow-600/40 text-yellow-300' : ''}
+                        ${round.status === 'finalizing' ? 'bg-purple-600/40 text-purple-300 animate-pulse' : ''}
+                    `}>
+                        {round.status === 'active' && '● LIVE'}
+                        {round.status === 'waiting' && 'WAITING...'}
+                        {round.status === 'finalizing' && 'FINALIZING...'}
+                    </span>
                 </div>
-            </div>
-
-            {/* Status Badge */}
-            <div className="absolute bottom-1 left-1/2 -translate-x-1/2">
-                <span className={`
-          px-4 py-1 rounded-full text-xs font-bold tracking-wider
-          ${round.status === 'active' ? 'bg-green-500/30 text-green-300' : ''}
-          ${round.status === 'waiting' ? 'bg-yellow-600/40 text-yellow-300' : ''}
-          ${round.status === 'finalizing' ? 'bg-purple-600/40 text-purple-300 animate-pulse' : ''}
-        `}>
-                    {round.status === 'active' && '● LIVE'}
-                    {round.status === 'waiting' && 'WAITING...'}
-                    {round.status === 'finalizing' && 'FINALIZING...'}
-                </span>
             </div>
         </motion.div>
     );
-};
+}

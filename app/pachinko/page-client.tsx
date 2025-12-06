@@ -38,6 +38,8 @@ export default function Blockpad() {
   const [showHistory, setShowHistory] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [history, setHistory] = useState<HistoryRound[]>([]);
+    const [animateCircle, setAnimateCircle] = useState(false);
+
 
   const [activities, setActivities] = useState<any[]>([
     { id: 1, type: "win", amount: 2580 },
@@ -47,16 +49,6 @@ export default function Blockpad() {
 
 
   const gameBalance = unifiedBalance;
-
-  // Initialize tiles
-  const defaultTiles: Tile[] = Array.from({ length: 25 }, (_, i) => ({
-    id: i,
-    position: i + 1,
-    bets: 0,
-    volume: 0,
-  }));
-
-
 
 
   useEffect(() => {
@@ -353,11 +345,10 @@ export default function Blockpad() {
     return () => clearInterval(interval);
   }, []);
 
-  const [animateCircle, setAnimateCircle] = useState(false);
 
   const handleClick = () => {
     setAnimateCircle(true);
-    handlePlaceBet(parseFloat(betAmount));
+    // handlePlaceBet(parseFloat(betAmount));
   };
 
   return (
