@@ -13,6 +13,7 @@ import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, Loader2, Tick
 import FloatingIcon from '@/components/floating-icon';
 import { Button } from '@/components/ui/button';
 import ConnectWalletModal from '@/components/connect-wallet-modal';
+import HowToPlayModal from '@/components/how-to-play-modal';
 
 export default function Pachinko() {
 
@@ -31,6 +32,7 @@ export default function Pachinko() {
   const [showResult, setShowResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showWalletModal, setShowWalletModal] = useState(false);
+  const [showHowToPlayModal, setShowHowToPlayModal] = useState(false);
 
   const {
     balance: unifiedBalance,
@@ -223,7 +225,7 @@ export default function Pachinko() {
   const leftIcons = [
     { Icon: Gamepad2, color: "bg-[#FFD374]", label: "CONSOLE", offset: false },
     { Icon: Music, color: "bg-[#DD5622]", label: "MUSIC", offset: true },
-    { Icon: HelpCircle, color: "bg-[#749CFF]", label: "HOW TO PLAY?", offset: false },
+    { Icon: HelpCircle, color: "bg-[#749CFF]", label: "HOW TO PLAY?", offset: false, onClick: () => setShowHowToPlayModal(true) },
   ];
 
   const rightIcons = [
@@ -604,6 +606,22 @@ export default function Pachinko() {
           <ConnectWalletModal 
             isOpen={showWalletModal} 
             onClose={() => setShowWalletModal(false)} 
+          />
+
+          {/* How to Play Modal */}
+          <HowToPlayModal 
+            isOpen={showHowToPlayModal} 
+            onClose={() => setShowHowToPlayModal(false)} 
+            content={{
+              title: 'ボール',
+              subtitle: 'BUY BALLS',
+              totalPages: 2,
+              pages:[{
+                description: ['You need balls to win' , "You currently have X Balls"],
+              },{
+                description: ['To play you need to build up your inventory'],
+              }]
+            }}
           />
         </div>
 

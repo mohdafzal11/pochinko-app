@@ -6,12 +6,14 @@ const FloatingIcon = ({
     offset,
     index,
     isRightSide = false,
+    onClick,
 }: {
     color: string;
     label: string;
     offset: boolean;
     index: number;
     isRightSide?: boolean;
+    onClick?: () => void;
 }) => (
     <motion.div
         initial={{ opacity: 0, y: 40 }}
@@ -21,7 +23,8 @@ const FloatingIcon = ({
             y: -16,
             transition: { duration: 0.5 },
         }}
-        className={`flex items-center gap-5 ${offset ? (isRightSide ? "pl-20" : "pr-20") : ""
+        onClick={onClick}
+        className={`flex items-center gap-5 cursor-pointer ${offset ? (isRightSide ? "pl-20" : "pr-20") : ""
             }`}
     >
         {!isRightSide && (
