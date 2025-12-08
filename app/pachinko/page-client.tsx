@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, Loader2, Ticket, Trophy, TrendingDown } from "lucide-react";
 import FloatingIcon from '@/components/floating-icon';
 import { Button } from '@/components/ui/button';
+import ConnectWalletModal from '@/components/connect-wallet-modal';
 
 export default function Pachinko() {
 
@@ -29,6 +30,7 @@ export default function Pachinko() {
   const [roundResult, setRoundResult] = useState<{ won: boolean; amount?: number; roundNumber?: number } | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [showWalletModal, setShowWalletModal] = useState(false);
 
   const {
     balance: unifiedBalance,
@@ -253,9 +255,11 @@ export default function Pachinko() {
   }, []);
 
   const handleClick = () => {
-    setAnimateCircle(true);
+    if (!walletConnected) {
+      setShowWalletModal(true);
+      return;
+    }
     setPlayMode(true);
-    setTimeout(() => setAnimateCircle(false), 600);
   };
 
   return (
@@ -333,10 +337,7 @@ export default function Pachinko() {
             <div className="flex items-center justify-center">
               <Button
                 onClick={handleClick}
-                disabled={
-                  !walletConnected ||
-                  !wsConnected
-                }
+              
                 className="relative bg-white hover:bg-white hover:scale-105 text-lg text-black px-20 py-7 rounded-full disabled:cursor-not-allowed overflow-hidden"
               >
                 <motion.div
@@ -598,6 +599,12 @@ export default function Pachinko() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* Connect Wallet Modal */}
+          <ConnectWalletModal 
+            isOpen={showWalletModal} 
+            onClose={() => setShowWalletModal(false)} 
+          />
         </div>
 
         {/* ==================== RIGHT SIDEBAR ==================== */}
