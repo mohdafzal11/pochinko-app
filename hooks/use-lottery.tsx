@@ -98,7 +98,7 @@ export function useLottery(machineId: string = 'sol') {
     }
   }, [machineId]);
 
-  // Buy balls using unified wallet (server-side debit)
+  // Buy balls using unified wallet SOL (server-side debit)
   const buyBalls = useCallback(async (walletAddress: string, quantity: number) => {
     try {
       const response = await fetch(`${API_URL}/lottery/buy-balls`, {
@@ -111,6 +111,23 @@ export function useLottery(machineId: string = 'sol') {
       return data;
     } catch (err: any) {
       console.error('Error buying balls:', err);
+      throw err;
+    }
+  }, [machineId]);
+
+  // Buy balls using unified wallet tokens (server-side debit)
+  const buyBallsWithToken = useCallback(async (walletAddress: string, quantity: number) => {
+    try {
+      const response = await fetch(`${API_URL}/lottery/buy-balls-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletAddress, machineId, quantity }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to buy balls with tokens');
+      return data;
+    } catch (err: any) {
+      console.error('Error buying balls with tokens:', err);
       throw err;
     }
   }, [machineId]);
@@ -194,6 +211,7 @@ export function useLottery(machineId: string = 'sol') {
     fetchStatus,
     fetchUserTickets,
     buyBalls,
+    buyBallsWithToken,
     prepareBuyBalls, // Legacy
     fetchRound,
     fetchWinners,
