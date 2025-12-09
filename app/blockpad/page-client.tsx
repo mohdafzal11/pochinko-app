@@ -9,9 +9,12 @@ import { Round, Tile, HistoryRound } from '@/types/game';
 import { toast } from 'sonner';
 import GameGrid from '@/components/game-grid';
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles } from "lucide-react";
+import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, History } from "lucide-react";
 import FloatingIcon from '@/components/floating-icon';
 import { Button } from '@/components/ui/button';
+import LiveActivity from '@/components/live-activity';
+import GameHistory from '@/components/game-history';
+import RoundResultModal from '@/components/round-result-modal';
 
 export default function Blockpad() {
 
@@ -34,18 +37,24 @@ export default function Blockpad() {
   const [currentRound, setCurrentRound] = useState<Round | null>(null);
   const [selectedTiles, setSelectedTiles] = useState<number[]>([]);
   const [lastBetTiles, setLastBetTiles] = useState<number[]>([]);
+  const [alreadyBetTiles, setAlreadyBetTiles] = useState<number[]>([]); // Tiles user already bet on this round
   const [betAmount, setBetAmount] = useState<string>('0.1');
   const [showHistory, setShowHistory] = useState(false);
   const [showWallet, setShowWallet] = useState(false);
   const [history, setHistory] = useState<HistoryRound[]>([]);
   const [animateCircle, setAnimateCircle] = useState(false);
-
-
-  const [activities, setActivities] = useState<any[]>([
-    { id: 1, type: "win", amount: 2580 },
-    { id: 2, type: "buy", user: "@grinding_negro", text: "bought 69 balls ..." },
-    { id: 3, type: "sell", user: "@tetsuodoteth", text: "sold 2 balls" },
-  ]);
+  const [playMode, setPlayMode] = useState(false);
+  const [isClosingSoon, setIsClosingSoon] = useState(false);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [roundResult, setRoundResult] = useState<{
+    won: boolean;
+    winnings?: number;
+    roundId: number;
+    winningTile?: number;
+    playerTile?: number;
+    game: 'ore' | 'lottery';
+    motherlodeHit?: boolean;
+  } | null>(null);
 
 
   const gameBalance = unifiedBalance;
@@ -84,6 +93,8 @@ export default function Blockpad() {
         playerCount: data.playerCount || 0,
       });
       setSelectedTiles([]);
+      setAlreadyBetTiles([]); // Reset already-bet tiles for new round
+      setLastBetTiles([]);
       toast.success(`Round #${data.roundId || data.id} started!`);
     };
 
@@ -124,9 +135,23 @@ export default function Blockpad() {
     };
 
     const handleBetSuccess = (data: any) => {
+      // Handle single bet success
+      if (data.tileIndex !== undefined) {
+        setAlreadyBetTiles(prev => [...prev, data.tileIndex]);
+      }
       toast.success('Bet placed successfully!');
       setSelectedTiles([]);
       // Refresh unified wallet balance after bet
+      setTimeout(() => refreshUnifiedBalance(), 2000);
+    };
+
+    // Handle batch bet success
+    const handleBatchBetSuccess = (data: { bets: Array<{tileIndex: number, amount: number}>, totalAmount: number }) => {
+      const betTiles = data.bets.map(b => b.tileIndex);
+      setAlreadyBetTiles(prev => [...prev, ...betTiles]);
+      setLastBetTiles(betTiles);
+      toast.success(`Placed ${data.bets.length} bets totaling ${data.totalAmount.toFixed(4)} SOL!`);
+      setSelectedTiles([]);
       setTimeout(() => refreshUnifiedBalance(), 2000);
     };
 
@@ -145,7 +170,7 @@ export default function Blockpad() {
       }
     };
 
-    const handleRoundFinalized = (data: { winner: number; prizePool: number; vrfProof: string }) => {
+    const handleRoundFinalized = (data: { winner: number; winningTile: number; prizePool: number; vrfProof: string; motherlodeHit?: boolean; roundId: number }) => {
       if (currentRound) {
         const finalizedRound: HistoryRound = {
           ...currentRound,
@@ -157,13 +182,47 @@ export default function Blockpad() {
         };
 
         setHistory((prev) => [finalizedRound, ...prev]);
-
-        if (finalizedRound.userWon) {
-          toast.success(`🎉 You won ${finalizedRound.userPrize.toFixed(2)} SOL!`);
-          // Refresh unified wallet balance after winning
-          setTimeout(() => refreshUnifiedBalance(), 2000);
-        }
       }
+    };
+
+    // Handle player-specific win notification
+    const handlePlayerWin = (data: { roundId: number; winningTile: number; betAmount: number; winnings: number; prizePool: number; game: string }) => {
+      console.log('🎉 Player win received:', data);
+      setRoundResult({
+        won: true,
+        winnings: data.winnings,
+        roundId: data.roundId,
+        winningTile: data.winningTile,
+        game: 'ore',
+      });
+      setShowResultModal(true);
+      toast.success(`🎉 You won ${data.winnings.toFixed(4)} SOL!`);
+      // Refresh balance after winning
+      setTimeout(() => refreshUnifiedBalance(), 2000);
+    };
+
+    // Handle player-specific loss notification
+    const handlePlayerLoss = (data: { roundId: number; winningTile: number; playerTile: number; betAmount: number; game: string }) => {
+      console.log('😢 Player loss received:', data);
+      setRoundResult({
+        won: false,
+        roundId: data.roundId,
+        winningTile: data.winningTile,
+        playerTile: data.playerTile,
+        game: 'ore',
+      });
+      setShowResultModal(true);
+    };
+
+    // Handle debit failure (insufficient on-chain balance)
+    const handleDebitFailed = (data: { roundId: number; amount: number; message: string }) => {
+      console.error('❌ Bet debit failed:', data);
+      toast.error(data.message || 'Your bet could not be processed - insufficient balance');
+      // Clear already bet tiles since they were voided
+      setAlreadyBetTiles([]);
+      setLastBetTiles([]);
+      // Refresh balance to show current state
+      setTimeout(() => refreshUnifiedBalance(), 1000);
     };
 
     on('round:started', handleRoundStarted);
@@ -171,9 +230,13 @@ export default function Blockpad() {
     on('round:timer_started', handleTimerStarted);
     on('game:update', handleGameUpdate);
     on('bet:success', handleBetSuccess);
+    on('bet:batch_success', handleBatchBetSuccess);
     on('bet:error', handleBetError);
+    on('bet:debit_failed', handleDebitFailed);
     on('round:finalizing', handleRoundFinalizing);
     on('round:finalized', handleRoundFinalized);
+    on('player:win', handlePlayerWin);
+    on('player:loss', handlePlayerLoss);
 
     return () => {
       off('round:started', handleRoundStarted);
@@ -181,11 +244,62 @@ export default function Blockpad() {
       off('round:timer_started', handleTimerStarted);
       off('game:update', handleGameUpdate);
       off('bet:success', handleBetSuccess);
+      off('bet:batch_success', handleBatchBetSuccess);
       off('bet:error', handleBetError);
+      off('bet:debit_failed', handleDebitFailed);
       off('round:finalizing', handleRoundFinalizing);
       off('round:finalized', handleRoundFinalized);
+      off('player:win', handlePlayerWin);
+      off('player:loss', handlePlayerLoss);
     };
-  }, [wsConnected, currentRound, lastBetTiles, on, off]);
+  }, [wsConnected, currentRound, lastBetTiles, on, off, refreshUnifiedBalance]);
+
+  // Periodically refresh game status via WebSocket while in play mode
+  useEffect(() => {
+    if (!wsConnected || !playMode) return;
+
+    const handleStatus = (data: any) => {
+      if (!data) return;
+      setCurrentRound((prev) => ({
+        ...(prev || {}),
+        ...data,
+        id: data.id || data.roundId?.toString(),
+        roundId: data.roundId,
+        prizePool: data.prizePool ?? 0,
+        totalVolume: data.totalVolume ?? 0,
+        playerCount: data.playerCount ?? 0,
+      }));
+    };
+
+    on('game:status', handleStatus);
+    emit('game:get_status', {});
+
+    const interval = setInterval(() => {
+      emit('game:get_status', {});
+    }, 2500);
+
+    return () => {
+      clearInterval(interval);
+      off('game:status', handleStatus);
+    };
+  }, [wsConnected, playMode, emit, on, off]);
+
+  // Track last 2 seconds before round end to prevent late bets
+  useEffect(() => {
+    if (!currentRound || !currentRound.endTime) {
+      setIsClosingSoon(false);
+      return;
+    }
+
+    const updateFlag = () => {
+      const msLeft = currentRound.endTime - Date.now();
+      setIsClosingSoon(msLeft <= 2000);
+    };
+
+    updateFlag();
+    const interval = setInterval(updateFlag, 250);
+    return () => clearInterval(interval);
+  }, [currentRound?.endTime]);
 
 
 
@@ -200,9 +314,15 @@ export default function Blockpad() {
       return;
     }
 
-    // Allow betting in 'waiting' and 'active' status
-    if (!currentRound || (currentRound.status !== 'active' && currentRound.status !== 'waiting')) {
-      toast.error('Round is not available. Please wait for the next round.');
+    // Block bets only when round is finalizing/finalized
+    if (currentRound && (currentRound.status === 'finalizing' || currentRound.status === 'finalized')) {
+      toast.error('Round is finalizing. Please wait for the next round.');
+      return;
+    }
+
+    // Extra safety: block bets in the last 2 seconds before end
+    if (isClosingSoon) {
+      toast.error('Betting is closed for this round.');
       return;
     }
 
@@ -225,12 +345,10 @@ export default function Blockpad() {
     const tilesToBet = [...selectedTiles];
     setLastBetTiles(tilesToBet);
 
-    tilesToBet.forEach((tileIndex) => {
-      emit('bet:place', {
-        tileIndex,
-        amount,
-        walletAddress: publicKey.toString(),
-      });
+    // Use batch betting for better efficiency and consolidated activity broadcast
+    emit('bet:place_batch', {
+      bets: tilesToBet.map(tileIndex => ({ tileIndex, amount })),
+      walletAddress: publicKey.toString(),
     });
   };
 
@@ -260,6 +378,12 @@ export default function Blockpad() {
     const amount = parseFloat(betAmount);
     if (Number.isNaN(amount) || amount <= 0) {
       toast.error('Enter a valid bet amount before selecting tiles.');
+      return;
+    }
+
+    // Prevent selecting tiles already bet on this round
+    if (alreadyBetTiles.includes(tileId)) {
+      toast.error('You already bet on this tile in this round.');
       return;
     }
 
@@ -332,33 +456,11 @@ export default function Blockpad() {
 
 
 
-  const generateActivity = () => {
-    const types = [
-      { type: "win", text: "won $", amount: Math.floor(Math.random() * 5000) + 500 },
-      { type: "buy", user: `@user${Math.floor(Math.random() * 9999)}`, text: "bought 69 balls ..." },
-      { type: "sell", user: `@degen${Math.floor(Math.random() * 9999)}`, text: "sold 2 balls" },
-      { type: "buy", user: `@whale_${Math.random().toString(36).substr(2, 5)}`, text: "bought 420 balls ..." },
-    ];
-    return types[Math.floor(Math.random() * types.length)];
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newAct = { ...generateActivity(), id: Date.now() + Math.random() };
-
-      setActivities((prev) => {
-        const updated = [newAct, ...prev];
-        return updated.slice(0, 3);
-      });
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, []);
 
 
   const handleClick = () => {
     setAnimateCircle(true);
-    // handlePlaceBet(parseFloat(betAmount));
+    setPlayMode(true);
   };
 
   return (
@@ -366,61 +468,24 @@ export default function Blockpad() {
       <main className="relative w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-4 items-start">
 
         {/* ==================== LEFT SIDEBAR ==================== */}
-        <div className="hidden lg:block space-y-16">
+        <div className={`hidden lg:block space-y-16 transition-all duration-500 ${playMode ? 'blur-md opacity-50 pointer-events-none' : ''}`}>
 
           {/* Live Activity Feed */}
           <motion.div
             initial={{ opacity: 0, x: -80 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
-            className="bg-[#E5DFDF24] p-2 border-gray-300 border-1 overflow-hidden rounded-md"
           >
-            <div className="relative h-[180px]">
-              <AnimatePresence mode="popLayout">
-                {activities.map((activity, index) => (
-                  <motion.div
-                    key={activity.id}
-                    layout
-                    initial={{ opacity: 0, y: 60, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -60, scale: 0.9 }}
-                    transition={{
-                      layout: { duration: 0.4 },
-                      y: { type: "spring", stiffness: 400, damping: 30 },
-                    }}
-                    className="flex items-center gap-4 py-2 border-b border-gray-100 last:border-0"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <div className={`w-10 h-10 border-1 rounded-full bg-white`} />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      {activity.type === "win" ? (
-                        <p className="font-bold text-green-600 text-lg truncate">
-                          won ${activity.amount.toLocaleString()}
-                        </p>
-                      ) : (
-                        <>
-                          <p className="font-sm text-muted-foreground truncate">{activity.user}</p>
-                          <p className="text-sm text-muted-foreground truncate">{activity.text}</p>
-                        </>
-                      )}
-                    </div>
-
-                    {activity.type === "win" && (
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                        className="text-yellow-500 text-2xl"
-                      >
-
-                      </motion.div>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            <LiveActivity showGame="ore" maxItems={5} />
           </motion.div>
+
+          {/* History Button */}
+          <div className="mt-4">
+            <GameHistory 
+              walletAddress={publicKey?.toString() || null} 
+              game="ore" 
+            />
+          </div>
 
           {/* Floating Icons - LEFT */}
           <div className="flex flex-col items-end gap-20">
@@ -436,6 +501,7 @@ export default function Blockpad() {
             round={currentRound}
             tiles={(currentRound?.tiles && currentRound.tiles.length > 0) ? currentRound.tiles : defaultTiles}
             selectedTiles={selectedTiles}
+            alreadyBetTiles={alreadyBetTiles}
             onTileToggle={handleTileSelection}
             disabled={!walletConnected || !wsConnected || currentRound?.status === 'finalizing' || currentRound?.status === 'finalized'}
             onPlaceBet={handlePlaceBet}
@@ -464,11 +530,119 @@ export default function Blockpad() {
               </Button>
             </div>
           </div>
+
+          {/* Game Controls Panel (Play Mode) */}
+          <AnimatePresence>
+            {playMode && (
+              <motion.div
+                initial={{ opacity: 0, x: 100, scale: 0.9 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 100, scale: 0.9 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="absolute right-[-420px] top-0 w-[400px] bg-white rounded-lg shadow-2xl border-2 border-gray-200 px-6 py-4 z-50"
+              >
+                {/* Close Button */}
+                <button
+                  onClick={() => {
+                    setPlayMode(false);
+                    setAnimateCircle(false);
+                  }}
+                  className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-gray-800">Game Controls</h2>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs space-y-2"
+                  >
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="text-center">
+                        <p className="text-gray-600">Round</p>
+                        <p className="font-semibold">
+                          #{currentRound?.roundId ?? currentRound?.id ?? '-'}
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-600">Players</p>
+                        <p className="font-semibold">{currentRound?.playerCount ?? 0}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-600">Prize Pool</p>
+                        <p className="font-semibold">{((currentRound?.prizePool ?? 0).toFixed(2))} SOL</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-gray-600">Volume</p>
+                        <p className="font-semibold">{((currentRound?.totalVolume ?? 0).toFixed(2))} SOL</p>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Bet Amount */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Bet Amount (SOL)</label>
+                    <input
+                      type="number"
+                      value={betAmount}
+                      onChange={(e) => handleBetAmountChange(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      step="0.01"
+                      min="0.01"
+                    />
+                  </div>
+
+                  {/* Summary */}
+                  <div className="bg-gray-50 p-3 rounded-lg space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Selected tiles:</span>
+                      <span className="font-semibold text-gray-900">{selectedTiles.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Cost:</span>
+                      <span className="font-semibold text-gray-900">
+                        {(
+                          (parseFloat(betAmount || '0') || 0) * selectedTiles.length
+                        ).toFixed(2)}{' '}
+                        SOL
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Game balance:</span>
+                      <span className="font-semibold text-gray-900">{gameBalance.toFixed(2)} SOL</span>
+                    </div>
+                  </div>
+
+                  {/* Action Button */}
+                  <Button
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold"
+                    onClick={() => handlePlaceBet(parseFloat(betAmount))}
+                    disabled={
+                      !walletConnected ||
+                      !wsConnected ||
+                      (currentRound && (currentRound.status === 'finalizing' || currentRound.status === 'finalized')) ||
+                      isClosingSoon ||
+                      selectedTiles.length === 0 ||
+                      !betAmount ||
+                      Number.isNaN(parseFloat(betAmount)) ||
+                      parseFloat(betAmount) <= 0
+                    }
+                  >
+                    Place Bet
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
 
         {/* ==================== RIGHT SIDEBAR ==================== */}
-        <div className="hidden lg:block space-y-16">
+        <div className={`hidden lg:block space-y-16 transition-all duration-500 ${playMode ? 'blur-md opacity-50 pointer-events-none' : ''}`}>
 
           {/* Animated Text Block */}
           <motion.div
@@ -530,6 +704,13 @@ export default function Blockpad() {
       <div className="px-8">
         <Image src="/loop-background.png" alt="Pachinko Background" className="object-cover" height={16} width={400} />
       </div>
+
+      {/* Round Result Modal */}
+      <RoundResultModal
+        isOpen={showResultModal}
+        onClose={() => setShowResultModal(false)}
+        result={roundResult}
+      />
     </div>
   );
 }

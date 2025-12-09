@@ -9,12 +9,14 @@ import useLottery from '@/hooks/use-lottery';
 import { Round, Tile, HistoryRound } from '@/types/game';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, Loader2, Ticket, Trophy, TrendingDown } from "lucide-react";
+import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, Loader2, Ticket, Trophy, TrendingDown, History } from "lucide-react";
 import FloatingIcon from '@/components/floating-icon';
 import { Button } from '@/components/ui/button';
 import ConnectWalletModal from '@/components/connect-wallet-modal';
 import HowToPlayModal from '@/components/how-to-play-modal';
 import InventoryModal from '@/components/inventory-modal';
+import LiveActivity from '@/components/live-activity';
+import GameHistory from '@/components/game-history';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -219,12 +221,6 @@ export default function Pachinko() {
 
   const currentRound = status?.currentRound;
 
-  const [activities, setActivities] = useState<any[]>([
-    { id: 1, type: "win", amount: 2580 },
-    { id: 2, type: "buy", user: "@grinding_negro", text: "bought 69 balls ..." },
-    { id: 3, type: "sell", user: "@tetsuodoteth", text: "sold 2 balls" },
-  ]);
-
   const handleMarketplaceClick = () => {
     router.push('/pachinko/marketplace');
   };
@@ -240,28 +236,6 @@ export default function Pachinko() {
     { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: true, onClick: handleMarketplaceClick },
     { Icon: Gamepad2, color: "bg-[#DAE998]", label: "MACHINES", offset: false },
   ];
-
-  const generateActivity = () => {
-    const types = [
-      { type: "win", text: "won $", amount: Math.floor(Math.random() * 5000) + 500 },
-      { type: "buy", user: `@user${Math.floor(Math.random() * 9999)}`, text: "bought 69 balls ..." },
-      { type: "sell", user: `@degen${Math.floor(Math.random() * 9999)}`, text: "sold 2 balls" },
-      { type: "buy", user: `@whale_${Math.random().toString(36).substr(2, 5)}`, text: "bought 420 balls ..." },
-    ];
-    return types[Math.floor(Math.random() * types.length)];
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const newAct = { ...generateActivity(), id: Date.now() + Math.random() };
-
-      setActivities((prev) => {
-        const updated = [newAct, ...prev];
-        return updated.slice(0, 3);
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleClick = () => {
     if (!walletConnected) {
@@ -282,53 +256,17 @@ export default function Pachinko() {
             initial={{ opacity: 0, x: -80 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7 }}
-            className="bg-[#E5DFDF24] p-2 border-gray-300 border-1 overflow-hidden rounded-md"
           >
-            <div className="relative h-[180px]">
-              <AnimatePresence mode="popLayout">
-                {activities.map((activity) => (
-                  <motion.div
-                    key={activity.id}
-                    layout
-                    initial={{ opacity: 0, y: 60, scale: 0.9 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -60, scale: 0.9 }}
-                    transition={{
-                      layout: { duration: 0.4 },
-                      y: { type: "spring", stiffness: 400, damping: 30 },
-                    }}
-                    className="flex items-center gap-4 py-2 border-b border-gray-100 last:border-0"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <div className="w-10 h-10 border-1 rounded-full bg-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      {activity.type === "win" ? (
-                        <p className="font-bold text-green-600 text-lg truncate">
-                          won ${activity.amount.toLocaleString()}
-                        </p>
-                      ) : (
-                        <>
-                          <p className="font-sm text-muted-foreground truncate">{activity.user}</p>
-                          <p className="text-sm text-muted-foreground truncate">{activity.text}</p>
-                        </>
-                      )}
-                    </div>
-
-                    {activity.type === "win" && (
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                        className="text-yellow-500 text-2xl"
-                      >
-
-                      </motion.div>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+            <LiveActivity showGame="lottery" maxItems={5} />
           </motion.div>
+
+          {/* History Button */}
+          <div className="mt-4">
+            <GameHistory 
+              walletAddress={publicKey?.toString() || null} 
+              game="lottery" 
+            />
+          </div>
 
           {/* Floating Icons - LEFT */}
           <div className="flex flex-col items-end gap-20">

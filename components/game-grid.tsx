@@ -11,6 +11,7 @@ interface GameGridProps {
     round: Round | null;
     tiles: Tile[];
     selectedTiles: number[];
+    alreadyBetTiles?: number[]; // Tiles already bet on this round
     onTileToggle: (tile: number) => void;
     onPlaceBet?: (amount: number) => void;
     disabled?: boolean;
@@ -52,6 +53,7 @@ const GameGrid = ({
     round,
     tiles,
     selectedTiles,
+    alreadyBetTiles = [],
     onTileToggle,
     onPlaceBet,
     disabled = false,
@@ -152,6 +154,8 @@ const GameGrid = ({
                     const isSelected = selectedTiles.includes(tile.id);
                     const isHovered = hoveredTile === tile.id;
                     const hasBets = tile.bets > 0;
+                    const isAlreadyBet = alreadyBetTiles.includes(tile.id);
+                    const isTileDisabled = disabled || isAlreadyBet;
 
                     return (
                         <motion.button
@@ -165,24 +169,27 @@ const GameGrid = ({
                                 stiffness: 800,
                                 damping: 14,
                             }}
-                            whileHover={!disabled ? { scale: 1.18, y: -10 } : {}}
-                            whileTap={!disabled ? { scale: 0.95 } : {}}
-                            onClick={() => !disabled && onTileToggle(tile.id)}
-                            onMouseEnter={() => !disabled && setHoveredTile(tile.id)}
+                            whileHover={!isTileDisabled ? { scale: 1.18, y: -10 } : {}}
+                            whileTap={!isTileDisabled ? { scale: 0.95 } : {}}
+                            onClick={() => !isTileDisabled && onTileToggle(tile.id)}
+                            onMouseEnter={() => !isTileDisabled && setHoveredTile(tile.id)}
                             onMouseLeave={() => setHoveredTile(null)}
-                            disabled={disabled}
+                            disabled={isTileDisabled}
                             className={`relative rounded-sm overflow-hidden transition-all duration-300 h-16 w-16 border-[1px] border-[#3d2817]
-                  ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
+                  ${isTileDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
                   ${isSelected ? 'ring-4 ring-[#fef08a] ring-offset-2 ring-offset-[#c41e3a]' : ''}
+                  ${isAlreadyBet ? 'ring-2 ring-green-500 ring-offset-1' : ''}
                 `}
                         >
                             <motion.div
                                 animate={{
-                                    backgroundColor: isSelected
-                                        ? "#fde68a"
-                                        : isHovered && !disabled
+                                    backgroundColor: isAlreadyBet
+                                        ? "#86efac" // Green for already bet
+                                        : isSelected
                                             ? "#fde68a"
-                                            : "#e8d4b8",
+                                            : isHovered && !isTileDisabled
+                                                ? "#fde68a"
+                                                : "#e8d4b8",
                                 }}
                                 className="absolute inset-0"
                             />

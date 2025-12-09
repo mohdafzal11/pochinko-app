@@ -14,6 +14,7 @@ import { WalletContextState } from '@solana/wallet-adapter-react';
 import bs58 from 'bs58';
 
 const API_URL = process.env.NEXT_API_URL || 'http://localhost:3920';
+const IS_BROWSER = typeof window !== 'undefined';
 
 // LocalStorage keys
 const STORAGE_KEY_TOKEN = 'ore_auth_token';
@@ -30,6 +31,8 @@ let authenticatedWallet: string | null = null;
  */
 function loadStoredAuth(): void {
   try {
+    if (!IS_BROWSER) return;
+
     const storedToken = localStorage.getItem(STORAGE_KEY_TOKEN);
     const storedExpiry = localStorage.getItem(STORAGE_KEY_EXPIRY);
     const storedWallet = localStorage.getItem(STORAGE_KEY_WALLET);
@@ -59,6 +62,8 @@ function loadStoredAuth(): void {
  */
 function saveAuth(): void {
   try {
+    if (!IS_BROWSER) return;
+
     if (authToken && tokenExpiry && authenticatedWallet) {
       localStorage.setItem(STORAGE_KEY_TOKEN, authToken);
       localStorage.setItem(STORAGE_KEY_EXPIRY, tokenExpiry.toString());
@@ -74,6 +79,8 @@ function saveAuth(): void {
  */
 function clearStoredAuth(): void {
   try {
+    if (!IS_BROWSER) return;
+
     localStorage.removeItem(STORAGE_KEY_TOKEN);
     localStorage.removeItem(STORAGE_KEY_EXPIRY);
     localStorage.removeItem(STORAGE_KEY_WALLET);
@@ -82,8 +89,10 @@ function clearStoredAuth(): void {
   }
 }
 
-// Load stored auth on module initialization
-loadStoredAuth();
+// Load stored auth on module initialization (browser only)
+if (IS_BROWSER) {
+  loadStoredAuth();
+}
 
 /**
  * Get current auth status
