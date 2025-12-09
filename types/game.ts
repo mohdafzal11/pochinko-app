@@ -26,6 +26,7 @@ export interface Tile {
     status: 'waiting' | 'active' | 'finalizing' | 'finalized' | 'completed';
     winner?: number;
     vrfProof?: string;
+    roundId?: number;
   }
   
   export interface GameState {
