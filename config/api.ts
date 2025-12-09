@@ -5,8 +5,10 @@
 
 // Get base API URL from environment
 const getApiUrl = () => {
-    // VITE_API_URL should be set during build (e.g., https://ore-api.0xvoid.dev)
-    const apiUrl = process.env.NEXT_API_URL;
+    // Prefer public env var so client bundle sees the configured URL
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_API_URL;
     
     if (apiUrl) {
       return apiUrl;

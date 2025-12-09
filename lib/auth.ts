@@ -13,7 +13,10 @@
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import bs58 from 'bs58';
 
-const API_URL = process.env.NEXT_API_URL || 'http://localhost:3920';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_API_URL ||
+  'http://localhost:3920';
 const IS_BROWSER = typeof window !== 'undefined';
 
 // LocalStorage keys

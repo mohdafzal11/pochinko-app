@@ -5,7 +5,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { authFetch } from '@/lib/auth';
 
-const API_URL = process.env.NEXT_API_URL || 'http://localhost:3920';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_API_URL ||
+  'http://localhost:3920';
 
 interface LotteryMachine {
   id: string;

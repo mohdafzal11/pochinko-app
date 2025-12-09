@@ -3,7 +3,10 @@ import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { PublicKey, Transaction, TransactionInstruction, SystemProgram, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { toast } from './use-toast';
 
-const API_URL = process.env.NEXT_API_URL || 'http://localhost:3920';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_API_URL ||
+  'http://localhost:3920';
 const UNIFIED_WALLET_PROGRAM_ID = new PublicKey(
   process.env.VITE_UNIFIED_WALLET_PROGRAM_ID || '9LkwNkyFM2D4gvjBCRxqiZ8PgxeMvTBgUSMwpyvDC42V'
 );

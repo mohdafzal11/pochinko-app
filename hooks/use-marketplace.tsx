@@ -2,7 +2,10 @@ import { useState, useCallback } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { authFetch } from '@/lib/auth';
 
-const API_URL = process.env.NEXT_API_URL || 'http://localhost:3920';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_API_URL ||
+  'http://localhost:3920';
 
 export interface MarketplaceListing {
   id: string;
