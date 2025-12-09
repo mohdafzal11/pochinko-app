@@ -223,7 +223,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
                                 </p>
                               )}
                               <p className="text-xs text-gray-500">
-                                Winning Tile: #{round.winningTile}
+                                Winning Tile: #{(round.winningTile ?? 0) + 1}
                               </p>
                             </div>
                           </div>
@@ -240,7 +240,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
                                       bet.won ? 'bg-green-100' : 'bg-gray-100'
                                     }`}
                                   >
-                                    <span>Tile #{bet.tileIndex}</span>
+                                    <span>Tile #{bet.tileIndex + 1}</span>
                                     <span className="font-medium">
                                       {formatAmount(bet.amount)} SOL
                                     </span>
