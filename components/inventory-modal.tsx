@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { Package, Tag, Loader2, ArrowLeft, ShoppingCart, X } from 'lucide-react';
 import { useUnifiedWallet } from '@/hooks/use-unified-wallet';
+import { authFetch, getAuthStatus, authenticate } from '@/lib/auth';
 
 const API_URL = process.env.VITE_API_URL || 'http://localhost:3920';
 
@@ -91,14 +92,23 @@ export default function InventoryModal({
     const [selectedBall, setSelectedBall] = useState<Ball | null>(null);
     const [listPrice, setListPrice] = useState<string>('');
     const [listing, setListing] = useState(false);
+    const [authenticating, setAuthenticating] = useState(false);
 
 
     const fetchInventory = useCallback(async () => {
         if (!publicKey) return;
 
+        // Check if we need to authenticate
+        const authStatus = getAuthStatus();
+        if (!authStatus.isAuthenticated || authStatus.wallet !== publicKey.toString()) {
+            // Need to authenticate first
+            console.log('[Inventory] Authentication required, attempting to authenticate...');
+            return;
+        }
+
         setLoading(true);
         try {
-            const response = await fetch(`${API_URL}/inventory/${publicKey.toString()}`);
+            const response = await authFetch(`/inventory/${publicKey.toString()}`);
             const data = await response.json();
 
             if (data.success) {
@@ -112,6 +122,26 @@ export default function InventoryModal({
         }
     }, [publicKey]);
 
+    // Handle authentication
+    const handleAuthenticate = async () => {
+        if (!publicKey) return;
+        
+        setAuthenticating(true);
+        try {
+            const result = await authenticate(useWallet());
+            if (result.success) {
+                toast.success('Authenticated successfully!');
+                fetchInventory();
+            } else {
+                toast.error(result.error || 'Authentication failed');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Authentication failed');
+        } finally {
+            setAuthenticating(false);
+        }
+    };
+
 
     useEffect(() => {
         fetchInventory();
@@ -124,6 +154,13 @@ export default function InventoryModal({
             return;
         }
 
+        // Check authentication status
+        const authStatus = getAuthStatus();
+        if (!authStatus.isAuthenticated || authStatus.wallet !== publicKey.toString()) {
+            toast.error('Please authenticate first');
+            return;
+        }
+
         const price = parseFloat(listPrice);
         if (isNaN(price) || price <= 0) {
             toast.error('Please enter a valid price');
@@ -132,9 +169,8 @@ export default function InventoryModal({
 
         setListing(true);
         try {
-            const response = await fetch(`${API_URL}/marketplace/list`, {
+            const response = await authFetch('/marketplace/list', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     sellerWallet: publicKey.toString(),
                     machineId,
@@ -165,10 +201,16 @@ export default function InventoryModal({
     const handleCancelListing = async (listing: Listing) => {
         if (!publicKey) return;
 
+        // Check authentication status
+        const authStatus = getAuthStatus();
+        if (!authStatus.isAuthenticated || authStatus.wallet !== publicKey.toString()) {
+            toast.error('Please authenticate first');
+            return;
+        }
+
         try {
-            const response = await fetch(`${API_URL}/marketplace/delist`, {
+            const response = await authFetch('/marketplace/delist', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     sellerWallet: publicKey.toString(),
                     listingId: listing.id,
@@ -225,6 +267,24 @@ export default function InventoryModal({
               <h2 className="text-xl font-semibold text-gray-800 mb-2">Connect Wallet</h2>
               <p className="text-gray-600 mb-4">Connect your wallet to view your lottery ball inventory</p>
               <WalletMultiButton />
+            </CardContent>
+          </Card>
+        ) : !getAuthStatus().isAuthenticated || getAuthStatus().wallet !== publicKey.toString() ? (
+          <Card className="bg-[#E5DFDF24] border-gray-300 max-w-md mx-auto">
+            <CardContent className="pt-6 text-center">
+              <Package className="w-12 h-12 mx-auto mb-4 text-gray-600" />
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Authenticate Required</h2>
+              <p className="text-gray-600 mb-4">Please authenticate to access your inventory</p>
+              <Button
+                onClick={handleAuthenticate}
+                disabled={authenticating}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {authenticating ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : null}
+                {authenticating ? 'Authenticating...' : 'Authenticate'}
+              </Button>
             </CardContent>
           </Card>
         ) : (
