@@ -14,6 +14,7 @@ import FloatingIcon from '@/components/floating-icon';
 import { Button } from '@/components/ui/button';
 import ConnectWalletModal from '@/components/connect-wallet-modal';
 import HowToPlayModal from '@/components/how-to-play-modal';
+import InventoryModal from '@/components/inventory-modal';
 
 export default function Pachinko() {
 
@@ -33,6 +34,7 @@ export default function Pachinko() {
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showHowToPlayModal, setShowHowToPlayModal] = useState(false);
+  const [showInventoryModal, setShowInventoryModal] = useState(false);
 
   const {
     balance: unifiedBalance,
@@ -229,7 +231,7 @@ export default function Pachinko() {
   ];
 
   const rightIcons = [
-    { Icon: Package, color: "bg-[#FF7492]", label: "INVENTORY", offset: false },
+    { Icon: Package, color: "bg-[#FF7492]", label: "INVENTORY", offset: false, onClick: () => setShowInventoryModal(true) },
     { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: true },
     { Icon: Gamepad2, color: "bg-[#DAE998]", label: "MACHINES", offset: false },
   ];
@@ -622,6 +624,13 @@ export default function Pachinko() {
                 description: ['To play you need to build up your inventory'],
               }]
             }}
+          />
+
+          {/* Inventory Modal */}
+          <InventoryModal 
+            isOpen={showInventoryModal} 
+            onClose={() => setShowInventoryModal(false)} 
+            page="pachinko"
           />
         </div>
 
