@@ -23,7 +23,7 @@ export interface Tile {
     prizePool: number;
     playerCount: number;
     motherlodePool?: number;
-    status: 'waiting' | 'active' | 'finalizing' | 'finalized' | 'completed';
+    status: 'idle' | 'active' | 'finalizing' | 'finalized' | 'completed';
     winner?: number;
     vrfProof?: string;
     roundId?: number;

@@ -120,11 +120,11 @@ export default function RoundTimer({ round }: RoundTimerProps) {
                     <span className={`
                         px-4 py-1 rounded-full text-xs font-bold tracking-wider
                         ${round.status === 'active' ? 'bg-green-500/30 text-green-300' : ''}
-                        ${round.status === 'waiting' ? 'bg-yellow-600/40 text-yellow-300' : ''}
+                        ${round.status === 'idle' ? 'bg-yellow-600/40 text-yellow-300' : ''}
                         ${round.status === 'finalizing' ? 'bg-purple-600/40 text-purple-300 animate-pulse' : ''}
                     `}>
                         {round.status === 'active' && '● LIVE'}
-                        {round.status === 'waiting' && 'WAITING...'}
+                        {round.status === 'idle' && 'WAITING...'}
                         {round.status === 'finalizing' && 'FINALIZING...'}
                     </span>
                 </div>

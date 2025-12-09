@@ -98,14 +98,20 @@ export default function Blockpad() {
       toast.success(`Round #${data.roundId || data.id} started!`);
     };
 
-    const handleGameUpdate = (data: { tiles: Tile[]; totalVolume: number; playerCount: number }) => {
+    const handleGameUpdate = (data: { tiles?: Tile[]; totalVolume?: number; playerCount?: number; status?: string }) => {
       if (currentRound) {
         setCurrentRound({
           ...currentRound,
-          tiles: data.tiles,
-          totalVolume: data.totalVolume,
-          playerCount: data.playerCount,
+          ...(data.tiles && { tiles: data.tiles }),
+          ...(data.totalVolume !== undefined && { totalVolume: data.totalVolume }),
+          ...(data.playerCount !== undefined && { playerCount: data.playerCount }),
+          ...(data.status && { status: data.status as any }),
         });
+        
+        // Log status changes for debugging
+        if (data.status) {
+          console.log(`Round status updated to: ${data.status}`);
+        }
       }
     };
 
@@ -204,13 +210,21 @@ export default function Blockpad() {
     // Handle player-specific loss notification
     const handlePlayerLoss = (data: { roundId: number; winningTile: number; playerTile: number; betAmount: number; game: string }) => {
       console.log('😢 Player loss received:', data);
-      setRoundResult({
-        won: false,
-        roundId: data.roundId,
-        winningTile: data.winningTile,
-        playerTile: data.playerTile,
-        game: 'ore',
+
+      // If we already recorded a win for this round, do not override it with a loss
+      setRoundResult((prev) => {
+        if (prev?.won && prev.roundId === data.roundId) {
+          return prev;
+        }
+        return {
+          won: false,
+          roundId: data.roundId,
+          winningTile: data.winningTile,
+          playerTile: data.playerTile,
+          game: 'ore',
+        };
       });
+
       setShowResultModal(true);
     };
 
@@ -314,6 +328,18 @@ export default function Blockpad() {
       return;
     }
 
+    // Debug logging
+    console.log('Attempting to place bet:', {
+      amount,
+      currentRound: currentRound ? {
+        id: currentRound.id,
+        status: currentRound.status,
+        playerCount: currentRound.playerCount
+      } : null,
+      wsConnected,
+      walletConnected
+    });
+
     // Block bets only when round is finalizing/finalized
     if (currentRound && (currentRound.status === 'finalizing' || currentRound.status === 'finalized')) {
       toast.error('Round is finalizing. Please wait for the next round.');
@@ -346,10 +372,12 @@ export default function Blockpad() {
     setLastBetTiles(tilesToBet);
 
     // Use batch betting for better efficiency and consolidated activity broadcast
-    emit('bet:place_batch', {
+    const betData = {
       bets: tilesToBet.map(tileIndex => ({ tileIndex, amount })),
       walletAddress: publicKey.toString(),
-    });
+    };
+    console.log('Emitting bet:place_batch:', betData);
+    emit('bet:place_batch', betData);
   };
 
   const handleBetAmountChange = (value: string) => {
@@ -507,29 +535,32 @@ export default function Blockpad() {
             onPlaceBet={handlePlaceBet}
             walletAddress={publicKey?.toString() || null}
           />
-          <div className="absolute -bottom-7 z-10 w-full">
-            <div className="flex items-center justify-center">
-              <Button
-                onClick={handleClick}
-                disabled={
-                  !walletConnected ||
-                  !wsConnected ||
-                  currentRound?.status === "finalizing" ||
-                  currentRound?.status === "finalized"
-                }
-                className="relative bg-white hover:bg-white hover:scale-105 text-lg text-black px-20 py-7 rounded-full disabled:cursor-not-allowed overflow-hidden"
-              >
-                <motion.div
-                  initial={{ x: -70 }}
-                  animate={animateCircle ? { x: 100 } : { x: -100 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                  className="absolute w-12 h-12 rounded-full bg-white shadow-md border"
-                />
 
-                LET’S PLAY
-              </Button>
+          {/* Let's Play Button - Hidden when in play mode */}
+          {!playMode && (
+            <div className="absolute -bottom-7 z-10 w-full">
+              <div className="flex items-center justify-center">
+                <Button
+                  onClick={handleClick}
+                  disabled={
+                    !walletConnected ||
+                    !wsConnected ||
+                    currentRound?.status === "finalizing" ||
+                    currentRound?.status === "finalized"
+                  }
+                  className="relative bg-white hover:bg-white hover:scale-105 text-lg text-black px-20 py-7 rounded-full disabled:cursor-not-allowed overflow-hidden"
+                >
+                  <motion.div
+                    initial={{ x: -70 }}
+                    animate={animateCircle ? { x: 100 } : { x: -100 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="absolute w-12 h-12 rounded-full bg-white shadow-md border"
+                  />
+                  LET'S PLAY
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Game Controls Panel (Play Mode) */}
           <AnimatePresence>
@@ -553,7 +584,24 @@ export default function Blockpad() {
                 </button>
 
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-gray-800">Game Controls</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-800">Game Controls</h2>
+                    {/* Status Badge */}
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      currentRound?.status === 'active' 
+                        ? 'bg-green-100 text-green-700' 
+                        : currentRound?.status === 'idle' 
+                          ? 'bg-yellow-100 text-yellow-700'
+                          : currentRound?.status === 'finalizing'
+                            ? 'bg-blue-100 text-blue-700'
+                            : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {currentRound?.status === 'active' ? 'Active' 
+                        : currentRound?.status === 'idle' ? 'Waiting for First Bet'
+                        : currentRound?.status === 'finalizing' ? 'Finalizing'
+                        : currentRound?.status ?? 'Unknown'}
+                    </span>
+                  </div>
 
                   <motion.div
                     initial={{ opacity: 0, y: -20 }}
@@ -573,12 +621,14 @@ export default function Blockpad() {
                         <p className="font-semibold">{currentRound?.playerCount ?? 0}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-gray-600">Prize Pool</p>
-                        <p className="font-semibold">{((currentRound?.prizePool ?? 0).toFixed(2))} SOL</p>
+                        <p className="text-gray-600">Prize Pool (90%)</p>
+                        <p className="font-semibold text-green-600">
+                          {((currentRound?.totalVolume ?? 0) * 0.9).toFixed(4)} SOL
+                        </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-gray-600">Volume</p>
-                        <p className="font-semibold">{((currentRound?.totalVolume ?? 0).toFixed(2))} SOL</p>
+                        <p className="text-gray-600">Total Volume</p>
+                        <p className="font-semibold">{((currentRound?.totalVolume ?? 0).toFixed(4))} SOL</p>
                       </div>
                     </div>
                   </motion.div>

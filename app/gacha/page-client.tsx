@@ -190,7 +190,7 @@ export default function Gacha() {
     }
 
     // Allow betting in 'waiting' and 'active' status
-    if (!currentRound || (currentRound.status !== 'active' && currentRound.status !== 'waiting')) {
+    if (!currentRound || (currentRound.status !== 'active' && currentRound.status !== 'idle')) {
       toast.error('Round is not available. Please wait for the next round.');
       return;
     }

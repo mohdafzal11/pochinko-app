@@ -369,7 +369,7 @@ const GameGrid = ({
                                                                     key={idx}
                                                                     className={`bg-muted/50 p-2 rounded-lg ${bet.won ? "bg-green-500/10" : ""}`}
                                                                 >
-                                                                    <p className="text-xs text-muted-foreground">Tile {bet.tileIndex}</p>
+                                                                    <p className="text-xs text-muted-foreground">Tile #{bet.tileIndex + 1}</p>
                                                                     <p className="text-sm font-medium">{bet.amount.toFixed(4)} SOL</p>
                                                                     {bet.won && bet.winnings !== undefined && (
                                                                         <p className="text-xs text-green-500">Won: +{bet.winnings.toFixed(4)} SOL</p>
@@ -384,7 +384,7 @@ const GameGrid = ({
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
                                                     <div className="bg-muted/50 p-2 rounded-lg text-center">
                                                         <p className="text-muted-foreground text-xs">Winner</p>
-                                                        <p className="font-medium">#{r.winningTile}</p>
+                                                        <p className="font-medium">#{(r.winningTile ?? 0) + 1}</p>
                                                     </div>
                                                     <div className="bg-muted/50 p-2 rounded-lg text-center">
                                                         <p className="text-muted-foreground text-xs">Prize</p>
