@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
+import { authFetch } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_API_URL || 'http://localhost:3920';
 
@@ -99,11 +100,11 @@ export function useLottery(machineId: string = 'sol') {
   }, [machineId]);
 
   // Buy balls using unified wallet SOL (server-side debit)
+  // Requires JWT authentication
   const buyBalls = useCallback(async (walletAddress: string, quantity: number) => {
     try {
-      const response = await fetch(`${API_URL}/lottery/buy-balls`, {
+      const response = await authFetch('/lottery/buy-balls', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ walletAddress, machineId, quantity }),
       });
       const data = await response.json();
@@ -116,11 +117,11 @@ export function useLottery(machineId: string = 'sol') {
   }, [machineId]);
 
   // Buy balls using unified wallet tokens (server-side debit)
+  // Requires JWT authentication
   const buyBallsWithToken = useCallback(async (walletAddress: string, quantity: number) => {
     try {
-      const response = await fetch(`${API_URL}/lottery/buy-balls-token`, {
+      const response = await authFetch('/lottery/buy-balls-token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ walletAddress, machineId, quantity }),
       });
       const data = await response.json();

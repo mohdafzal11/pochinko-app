@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { Toaster as Sonner } from '@/components/ui/sonner';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -36,9 +37,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <WalletModalProvider>
                     <QueryClientProvider client={queryClient}>
                         <TooltipProvider>
-                            {children}
-                            <Toaster />
-                            <Sonner />
+                            <AuthProvider>
+                                {children}
+                                <Toaster />
+                                <Sonner />
+                            </AuthProvider>
                         </TooltipProvider>
                     </QueryClientProvider>
                 </WalletModalProvider>
