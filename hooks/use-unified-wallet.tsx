@@ -23,6 +23,19 @@ function getDiscriminator(name: keyof typeof DISCRIMINATORS): Buffer {
   return Buffer.from(DISCRIMINATORS[name]);
 }
 
+// Encode a bigint as a u64 little-endian byte array (browser-safe)
+function bigIntToU64LEBytes(value: bigint): Uint8Array {
+  // 1. Create a buffer of 8 bytes
+  const buffer = new ArrayBuffer(8);
+  
+  // 2. Use DataView to write the BigUint64
+  // The 'true' argument enables Little-Endian
+  new DataView(buffer).setBigUint64(0, value, true);
+  
+  // 3. Return the view as a Uint8Array
+  return new Uint8Array(buffer);
+}
+
 // Derive player account PDA
 function getPlayerAccountPDA(playerPubkey: PublicKey): PublicKey {
   const [pda] = PublicKey.findProgramAddressSync(
@@ -226,9 +239,11 @@ export function useUnifiedWallet() {
       
       // Build instruction data: discriminator + amount (u64 LE)
       const discriminator = getDiscriminator('deposit');
-      const amountBuffer = Buffer.alloc(8);
-      amountBuffer.writeBigUInt64LE(amountLamports);
-      const instructionData = Buffer.concat([discriminator, amountBuffer]);
+      const amountBytes = bigIntToU64LEBytes(amountLamports);
+      const instructionData = Buffer.concat([
+        discriminator,
+        Buffer.from(amountBytes),
+      ]);
 
       const instruction = new TransactionInstruction({
         keys: [
@@ -313,9 +328,11 @@ export function useUnifiedWallet() {
       
       // Build instruction data: discriminator + amount (u64 LE)
       const discriminator = getDiscriminator('withdraw');
-      const amountBuffer = Buffer.alloc(8);
-      amountBuffer.writeBigUInt64LE(amountLamports);
-      const instructionData = Buffer.concat([discriminator, amountBuffer]);
+      const amountBytes = bigIntToU64LEBytes(amountLamports);
+      const instructionData = Buffer.concat([
+        discriminator,
+        Buffer.from(amountBytes),
+      ]);
 
       const instruction = new TransactionInstruction({
         keys: [
