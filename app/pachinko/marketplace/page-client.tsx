@@ -372,7 +372,13 @@ export default function Marketplace() {
                   <span className="font-bold text-gray-800">{unifiedBalance.toFixed(4)} SOL</span>
                 </div>
               </div>
-              <WalletMultiButton />
+              <WalletMultiButton style={{
+                backgroundColor: 'white',
+                color: "black",
+                borderRadius: '0.9rem',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                height: "40px"
+              }} />
             </div>
           </div>
         </motion.div>
@@ -455,11 +461,10 @@ export default function Marketplace() {
           <Button
             variant={activeTab === 'marketplace' ? 'default' : 'outline'}
             onClick={() => setActiveTab('marketplace')}
-            className={`${
-              activeTab === 'marketplace'
+            className={`${activeTab === 'marketplace'
                 ? 'bg-orange-500 hover:bg-orange-600 text-white'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-            }`}
+              }`}
           >
             <Store className="w-4 h-4 mr-2" />
             Browse Marketplace
@@ -467,11 +472,10 @@ export default function Marketplace() {
           <Button
             variant={activeTab === 'inventory' ? 'default' : 'outline'}
             onClick={() => setActiveTab('inventory')}
-            className={`${
-              activeTab === 'inventory'
+            className={`${activeTab === 'inventory'
                 ? 'bg-orange-500 hover:bg-orange-600 text-white'
                 : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-            }`}
+              }`}
           >
             <Package className="w-4 h-4 mr-2" />
             My Inventory
@@ -575,9 +579,8 @@ export default function Marketplace() {
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                       >
                         <Card
-                          className={`bg-white/90 backdrop-blur-sm border-gray-200 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 ${
-                            isOwnListing ? 'ring-2 ring-orange-400' : ''
-                          }`}
+                          className={`bg-white/90 backdrop-blur-sm border-gray-200 overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1 ${isOwnListing ? 'ring-2 ring-orange-400' : ''
+                            }`}
                         >
                           {/* Ball Visualization */}
                           <div className="relative h-28 bg-gradient-to-br from-purple-100 to-orange-100 flex items-center justify-center">
@@ -618,11 +621,10 @@ export default function Marketplace() {
                                 </Button>
                               ) : (
                                 <Button
-                                  className={`w-full ${
-                                    canAfford
+                                  className={`w-full ${canAfford
                                       ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white'
                                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                  }`}
+                                    }`}
                                   onClick={() => handleBuy(listingItem)}
                                   disabled={!publicKey || buying === listingItem.id || !canAfford}
                                 >
@@ -821,25 +823,23 @@ export default function Marketplace() {
                                 key={ball.ballId}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className={`relative p-3 rounded-xl text-center cursor-pointer transition-all ${
-                                  ball.listedForSale
+                                className={`relative p-3 rounded-xl text-center cursor-pointer transition-all ${ball.listedForSale
                                     ? 'bg-orange-100 border-2 border-orange-300'
                                     : selectedBall?.ball.ballId === ball.ballId &&
                                       selectedBall?.roundNumber === inv.roundNumber
-                                    ? 'bg-blue-100 border-2 border-blue-400 ring-2 ring-blue-200'
-                                    : 'bg-gray-50 border border-gray-200 hover:border-gray-300 hover:bg-gray-100'
-                                }`}
+                                      ? 'bg-blue-100 border-2 border-blue-400 ring-2 ring-blue-200'
+                                      : 'bg-gray-50 border border-gray-200 hover:border-gray-300 hover:bg-gray-100'
+                                  }`}
                                 onClick={() =>
                                   !ball.listedForSale &&
                                   setSelectedBall({ ball, roundNumber: inv.roundNumber, machineId: inv.machineId })
                                 }
                               >
                                 <div
-                                  className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                                    ball.listedForSale
+                                  className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center text-white font-bold text-sm ${ball.listedForSale
                                       ? 'bg-gradient-to-br from-orange-400 to-orange-600'
                                       : 'bg-gradient-to-br from-purple-400 to-purple-600'
-                                  }`}
+                                    }`}
                                 >
                                   #{ball.ballId}
                                 </div>

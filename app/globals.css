@@ -153,3 +153,23 @@ input[type="number"] {
   text-stroke: 1px #E2CEAB;            
   font-weight: 700;
 }
+
+/* Add this to your global CSS file */
+[role="menu"] {
+  background-color: white !important;
+  color: black !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+[role="menuitem"] {
+  color: black !important;
+  font-family: 'Courier New', monospace !important;
+}
+
+[role="menuitem"]:hover {
+  background-color: #f3f4f6 !important;
+}
+
+.wallet-adapter-button {
+  font-family: 'Courier New', monospace !important;
+}
