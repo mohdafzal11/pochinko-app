@@ -15,11 +15,14 @@ import { Button } from '@/components/ui/button';
 import ConnectWalletModal from '@/components/connect-wallet-modal';
 import HowToPlayModal from '@/components/how-to-play-modal';
 import InventoryModal from '@/components/inventory-modal';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function Pachinko() {
 
   const { isConnected: wsConnected, emit, on, off } = useWebSocket();
   const { isConnected: walletConnected, balance: walletBalance, publicKey } = useSolanaWallet();
+  const router = useRouter();
 
 
   const [animateCircle, setAnimateCircle] = useState(false);
@@ -222,7 +225,9 @@ export default function Pachinko() {
     { id: 3, type: "sell", user: "@tetsuodoteth", text: "sold 2 balls" },
   ]);
 
-
+  const handleMarketplaceClick = () => {
+    router.push('/pachinko/marketplace');
+  };
 
   const leftIcons = [
     { Icon: Gamepad2, color: "bg-[#FFD374]", label: "CONSOLE", offset: false },
@@ -232,7 +237,7 @@ export default function Pachinko() {
 
   const rightIcons = [
     { Icon: Package, color: "bg-[#FF7492]", label: "INVENTORY", offset: false, onClick: () => setShowInventoryModal(true) },
-    { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: true },
+    { Icon: Store, color: "bg-[#F48C8C]", label: "MARKETPLACE", offset: true, onClick: handleMarketplaceClick },
     { Icon: Gamepad2, color: "bg-[#DAE998]", label: "MACHINES", offset: false },
   ];
 

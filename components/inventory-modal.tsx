@@ -85,7 +85,7 @@ export default function InventoryModal({
 }: InventoryModalProps) {
 
 
-    const { publicKey } = useWallet();
+    const wallet = useWallet();
     const [loading, setLoading] = useState(false);
     const [inventory, setInventory] = useState<InventoryData[]>([]);
     const [activeListings, setActiveListings] = useState<Listing[]>([]);
@@ -96,11 +96,11 @@ export default function InventoryModal({
 
 
     const fetchInventory = useCallback(async () => {
-        if (!publicKey) return;
+        if (!wallet.publicKey) return;
 
         // Check if we need to authenticate
         const authStatus = getAuthStatus();
-        if (!authStatus.isAuthenticated || authStatus.wallet !== publicKey.toString()) {
+        if (!authStatus.isAuthenticated || authStatus.wallet !== wallet.publicKey.toString()) {
             // Need to authenticate first
             console.log('[Inventory] Authentication required, attempting to authenticate...');
             return;
@@ -108,7 +108,7 @@ export default function InventoryModal({
 
         setLoading(true);
         try {
-            const response = await authFetch(`/inventory/${publicKey.toString()}`);
+            const response = await authFetch(`/inventory/${wallet.publicKey.toString()}`);
             const data = await response.json();
 
             if (data.success) {
@@ -120,15 +120,15 @@ export default function InventoryModal({
         } finally {
             setLoading(false);
         }
-    }, [publicKey]);
+    }, [wallet.publicKey]);
 
     // Handle authentication
     const handleAuthenticate = async () => {
-        if (!publicKey) return;
+        if (!wallet.publicKey || !wallet.signMessage) return;
         
         setAuthenticating(true);
         try {
-            const result = await authenticate(useWallet());
+            const result = await authenticate(wallet);
             if (result.success) {
                 toast.success('Authenticated successfully!');
                 fetchInventory();
@@ -149,14 +149,14 @@ export default function InventoryModal({
 
     // List ball for sale
     const handleListBall = async (ball: Ball, roundNumber: number, machineId: string) => {
-        if (!publicKey) {
+        if (!wallet.publicKey) {
             toast.error('Please connect your wallet');
             return;
         }
 
         // Check authentication status
         const authStatus = getAuthStatus();
-        if (!authStatus.isAuthenticated || authStatus.wallet !== publicKey.toString()) {
+        if (!authStatus.isAuthenticated || authStatus.wallet !== wallet.publicKey.toString()) {
             toast.error('Please authenticate first');
             return;
         }
@@ -172,7 +172,7 @@ export default function InventoryModal({
             const response = await authFetch('/marketplace/list', {
                 method: 'POST',
                 body: JSON.stringify({
-                    sellerWallet: publicKey.toString(),
+                    sellerWallet: wallet.publicKey.toString(),
                     machineId,
                     roundNumber,
                     ballId: ball.ballId,
@@ -199,11 +199,11 @@ export default function InventoryModal({
 
     // Cancel listing
     const handleCancelListing = async (listing: Listing) => {
-        if (!publicKey) return;
+        if (!wallet.publicKey) return;
 
         // Check authentication status
         const authStatus = getAuthStatus();
-        if (!authStatus.isAuthenticated || authStatus.wallet !== publicKey.toString()) {
+        if (!authStatus.isAuthenticated || authStatus.wallet !== wallet.publicKey.toString()) {
             toast.error('Please authenticate first');
             return;
         }
@@ -212,7 +212,7 @@ export default function InventoryModal({
             const response = await authFetch('/marketplace/delist', {
                 method: 'POST',
                 body: JSON.stringify({
-                    sellerWallet: publicKey.toString(),
+                    sellerWallet: wallet.publicKey.toString(),
                     listingId: listing.id,
                 }),
             });
@@ -260,7 +260,7 @@ export default function InventoryModal({
                         </button>
 
                         <main className="container mx-auto px-4 py-8">
-        {!publicKey ? (
+        {!wallet.publicKey ? (
           <Card className="bg-[#E5DFDF24] border-gray-300 max-w-md mx-auto">
             <CardContent className="pt-6 text-center">
               <Package className="w-12 h-12 mx-auto mb-4 text-gray-600" />
@@ -269,8 +269,8 @@ export default function InventoryModal({
               <WalletMultiButton />
             </CardContent>
           </Card>
-        ) : !getAuthStatus().isAuthenticated || getAuthStatus().wallet !== publicKey.toString() ? (
-          <Card className="bg-[#E5DFDF24] border-gray-300 max-w-md mx-auto">
+        ) : !getAuthStatus().isAuthenticated || getAuthStatus().wallet !== wallet.publicKey.toString() ? (
+          <Card className="bg-[#E5DFDF24] border-gray-300 mx-auto">
             <CardContent className="pt-6 text-center">
               <Package className="w-12 h-12 mx-auto mb-4 text-gray-600" />
               <h2 className="text-xl font-semibold text-gray-800 mb-2">Authenticate Required</h2>
