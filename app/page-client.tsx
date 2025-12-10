@@ -42,7 +42,7 @@ export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(1);
   const [animateCircle, setAnimateCircle] = useState(false);
   const { isLoading } = useLoaderContext();
-  
+
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : games.length - 1));
@@ -66,14 +66,14 @@ export default function Home() {
       router.push(games[currentIndex].href);
     }, 600);
   };
- if (isLoading) {
+  if (isLoading) {
     return <Loader />
   }
 
   return (
     <div className="min-h-screen flex flex-col justify-center overflow-x-hidden">
       {/* Game Carousel */}
-      <div className="relative w-full flex justify-center pt-12">
+      <div className="min-h-[calc(100vh-80px)] relative w-full flex items-center justify-center pt-12">
         <div className="relative flex items-center justify-center w-full gap-4 md:gap-8 lg:gap-12">
 
           {/* LEFT CARD */}
@@ -81,7 +81,8 @@ export default function Home() {
             <div
               className={`
     relative w-64 h-80 sm:w-72 sm:h-96 
-    md:w-[250px] md:h-[300px] lg:w-[350px] lg:h-[400px] 
+    md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[300px] 
+    xl:w-[350px] xl:h-[400px] 2xl:w-[400px] 2xl:h-[450px]
     overflow-hidden transition-all duration-700 ease-out
     -translate-x-16
     hover:scale-105 hover:-translate-y-2 opacity-40
@@ -114,7 +115,7 @@ export default function Home() {
             <div
               key={currentIndex}
               className="relative w-80 h-96 sm:w-[340px] sm:h-[420px] md:w-[440px] md:h-[560px]
-  lg:w-[480px] lg:h-[600px] overflow-hidden
+  lg:w-[400px] lg:h-[500px] xl:w-[500px] xl:h-[600px] 2xl:w-[600px] 2xl:h-[700px] overflow-hidden
   transition-all duration-700 ease-out
   animate-fadeIn
   hover:scale-105 hover:-translate-y-2"
@@ -173,7 +174,8 @@ export default function Home() {
             <div
               className={`
     relative w-64 h-80 sm:w-72 sm:h-96 
-    md:w-[250px] md:h-[300px] lg:w-[350px] lg:h-[400px] 
+     md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[300px] 
+    xl:w-[350px] xl:h-[400px] 2xl:w-[400px] 2xl:h-[450px]
     overflow-hidden transition-all duration-700 ease-out
     translate-x-16
     hover:scale-105 hover:-translate-y-2 opacity-40
