@@ -13,6 +13,8 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LoaderProvider } from '@/contexts/LoaderContext';
+import { MusicProvider } from '@/contexts/MusicContext';
 
 import '@solana/wallet-adapter-react-ui/styles.css';
 
@@ -38,9 +40,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <QueryClientProvider client={queryClient}>
                         <TooltipProvider>
                             <AuthProvider>
-                                {children}
-                                <Toaster />
-                                <Sonner />
+                                <LoaderProvider>
+                                    <MusicProvider>
+                                        {children}
+                                        <Toaster />
+                                        <Sonner />
+                                    </MusicProvider>
+                                </LoaderProvider>
                             </AuthProvider>
                         </TooltipProvider>
                     </QueryClientProvider>
