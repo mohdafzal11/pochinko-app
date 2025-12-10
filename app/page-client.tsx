@@ -6,6 +6,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { useLoaderContext } from '@/contexts/LoaderContext';
+import Loader from '@/components/laoder';
 
 const games = [
   {
@@ -37,7 +39,8 @@ export default function Home() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(1);
   const [animateCircle, setAnimateCircle] = useState(false);
-
+  const { isLoading } = useLoaderContext();
+  
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : games.length - 1));
@@ -54,13 +57,16 @@ export default function Home() {
 
   const handleClick = () => {
     if (games[currentIndex].isComingSoon) return;
-    
+
     setAnimateCircle(true);
     setTimeout(() => {
       setAnimateCircle(false);
       router.push(games[currentIndex].href);
     }, 600);
   };
+ if (isLoading) {
+    return <Loader />
+  }
 
   return (
     <div className="min-h-screen flex flex-col justify-center overflow-x-hidden">
@@ -127,11 +133,10 @@ export default function Home() {
                   onClick={handleClick}
 
                   disabled={games[currentIndex].isComingSoon}
-                  className={`relative shadow-xl hover:scale-105 text-sm sm:text-lg min-w-[200px] sm:min-w-[260px] py-4 sm:py-7 rounded-full overflow-hidden transition-all ${
-                    games[currentIndex].isComingSoon 
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                      : 'bg-white text-black hover:bg-white border-1'
-                  }`}
+                  className={`relative shadow-xl hover:scale-105 text-sm sm:text-lg min-w-[200px] sm:min-w-[260px] py-4 sm:py-7 rounded-full overflow-hidden transition-all ${games[currentIndex].isComingSoon
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-white text-black hover:bg-white border-1'
+                    }`}
                 >
                   <motion.div
                     initial={{ x: -70 }}
@@ -187,7 +192,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* BACKGROUND SECTION BELOW */}
       <div className="px-8">
         <Image
           src="/loop-background.png"

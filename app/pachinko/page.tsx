@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import PageClient from "./page-client";
-import { Loader } from "@/components/laoder";
+import Loader  from "@/components/laoder";
 
 
 export default async function PachinkoPage() {

@@ -14,7 +14,7 @@ const Header = () => {
     };
 
     return (
-        <nav className="sticky top-0 bg-white z-50">
+        <nav className="sticky top-0 bg-white z-[9999999]">
             <div className='flex justify-between items-center py-2 px-4'>
                 {/* Logo */}
                 <Link href="/" className="text-2xl font-semibold text-[#DD5622]">
