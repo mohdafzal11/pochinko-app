@@ -6,12 +6,19 @@ import Link from 'next/link';
 import ConnectWallet from './connect-wallet';
 
 const Header = () => {
-
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
     };
+
+    const menuItems = [
+        { href: "/", english: "MACHINES", japanese: "マシン" },
+        { href: "/dashboard", english: "DASHBOARD", japanese: "ダッシュボード" },
+        { href: "/marketplace", english: "MARKETPLACE", japanese: "マーケット" },
+        { href: "/leaderboard", english: "LEADERBOARD", japanese: "リーダーボード" }
+    ];
 
     return (
         <nav className="sticky top-0 bg-white z-[9999999]">
@@ -22,22 +29,19 @@ const Header = () => {
                 </Link>
 
                 {/* Desktop Navigation */}
-                <div className='hidden md:flex items-center gap-6 text-muted-foreground'
-                >
-                    <Link href="/" className="hover:text-foreground transition-colors text-kode-monu">
-                        MACHINES
-                    </Link>
-                    <Link href="/dashboard" className="hover:text-foreground transition-colors text-kode-monu">
-                        DASHBOARD
-                    </Link>
-                    <Link href="/marketplace" className="hover:text-foreground transition-colors text-kode-monu">
-                        MARKETPLACE
-                    </Link>
-                    <Link href="/leaderboard" className="hover:text-foreground transition-colors text-kode-monu">
-                        LEADERBOARD
-                    </Link>
+                <div className='hidden md:flex items-center gap-6 text-muted-foreground'>
+                    {menuItems.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className="hover:text-foreground transition-colors text-kode-monu"
+                            onMouseEnter={() => setHoveredItem(item.href)}
+                            onMouseLeave={() => setHoveredItem(null)}
+                        >
+                            {hoveredItem === item.href ? item.japanese : item.english}
+                        </Link>
+                    ))}
                     <ConnectWallet />
-
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -54,34 +58,18 @@ const Header = () => {
             {isMenuOpen && (
                 <div className='md:hidden bg-white border-t'>
                     <div className='flex flex-col gap-4 p-4 text-muted-foreground'>
-                        <Link
-                            href="/machines"
-                            className="hover:text-foreground transition-colors py-2 text-kode-monu"
-                            onClick={toggleMenu}
-                        >
-                            MACHINES
-                        </Link>
-                        <Link
-                            href="/dashboard"
-                            className="hover:text-foreground transition-colors py-2 text-kode-monu"
-                            onClick={toggleMenu}
-                        >
-                            ダッシュボード
-                        </Link>
-                        <Link
-                            href="/marketplace"
-                            className="hover:text-foreground transition-colors py-2 txt-kode-monu"
-                            onClick={toggleMenu}
-                        >
-                            MARKETPLACE
-                        </Link>
-                        <Link
-                            href="/leaderboard"
-                            className="hover:text-foreground transition-colors py-2 text-kode-monu"
-                            onClick={toggleMenu}
-                        >
-                            LEADERBOARD
-                        </Link>
+                        {menuItems.map((item) => (
+                            <Link
+                                key={item.href}
+                                href={item.href}
+                                className="hover:text-foreground transition-colors py-2 text-kode-monu"
+                                onClick={toggleMenu}
+                                onMouseEnter={() => setHoveredItem(item.href)}
+                                onMouseLeave={() => setHoveredItem(null)}
+                            >
+                                {hoveredItem === item.href ? item.japanese : item.english}
+                            </Link>
+                        ))}
                         <ConnectWallet />
                     </div>
                 </div>
