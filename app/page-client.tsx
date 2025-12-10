@@ -3,16 +3,18 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Link from 'next/link';
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 const games = [
   {
     id: 1,
     name: 'Gacha',
     image: '/gacha.jpeg',
-    description: 'CLICK TO PROCEED',
-    href: '/gacha'
-
+    description: 'COMING SOON',
+    href: '/gacha',
+    isComingSoon: true
   },
   {
     id: 2,
@@ -31,7 +33,11 @@ const games = [
 ];
 
 export default function Home() {
+
+  const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(1);
+  const [animateCircle, setAnimateCircle] = useState(false);
+
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev > 0 ? prev - 1 : games.length - 1));
@@ -46,8 +52,18 @@ export default function Home() {
 
   const isGame1 = (index: number) => games[index].id === 1;
 
+  const handleClick = () => {
+    if (games[currentIndex].isComingSoon) return;
+    
+    setAnimateCircle(true);
+    setTimeout(() => {
+      setAnimateCircle(false);
+      router.push(games[currentIndex].href);
+    }, 600);
+  };
+
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col overflow-hidden justify-center">
+    <div className="min-h-screen flex flex-col justify-center overflow-x-hidden">
       {/* Game Carousel */}
       <div className="relative w-full flex justify-center pt-12">
         <div className="relative flex items-center justify-center w-full gap-4 md:gap-8 lg:gap-12">
@@ -57,13 +73,13 @@ export default function Home() {
             <div
               className={`
     relative w-64 h-80 sm:w-72 sm:h-96 
-    md:w-96 md:h-[500px] lg:w-[420px] lg:h-[540px] 
+    md:w-[250px] md:h-[300px] lg:w-[350px] lg:h-[400px] 
     overflow-hidden transition-all duration-700 ease-out
-    -translate-x-6
-    hover:scale-105 hover:-translate-y-2
+    -translate-x-16
+    hover:scale-105 hover:-translate-y-2 opacity-40
   `}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-white/100 via-white/60 to-transparent z-20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-transparent z-20 pointer-events-none" />
 
               <Image
                 src={games[getPreviousIndex()].image}
@@ -75,7 +91,7 @@ export default function Home() {
           </div>
 
           {/* PREVIOUS BUTTON */}
-          <div className="z-20 flex flex-col items-center gap-2 flex-shrink-0">
+          <div className="z-20 flex flex-col items-center gap-2 flex-shrink-0 -mx-2 sm:mx-0">
             <button
               onClick={handlePrevious}
               className="bg-white rounded-full p-2 sm:p-3 md:p-4 shadow-xl hover:shadow-2xl transition-all hover:scale-110 cursor-pointer"
@@ -89,8 +105,8 @@ export default function Home() {
           <div className="relative z-10 flex flex-col items-center gap-4 md:gap-6 flex-shrink-0">
             <div
               key={currentIndex}
-              className="relative w-64 h-80 sm:w-72 sm:h-96 md:w-96 md:h-[500px]
-  lg:w-[420px] lg:h-[540px] overflow-hidden
+              className="relative w-80 h-96 sm:w-[340px] sm:h-[420px] md:w-[440px] md:h-[560px]
+  lg:w-[480px] lg:h-[600px] overflow-hidden
   transition-all duration-700 ease-out
   animate-fadeIn
   hover:scale-105 hover:-translate-y-2"
@@ -105,22 +121,27 @@ export default function Home() {
             </div>
 
             {/* TEXT BELOW */}
-            <div className='absolute -bottom-5 text-kode-monu space-y-2'>
-              <Link
-                href={games[currentIndex].href}
+            <div className='absolute -bottom-10 text-kode-monu space-y-2'>
+              <div className="flex items-center justify-center">
+                <Button
+                  onClick={handleClick}
 
-              >   <div
-                className="
-  text-base sm:text-xl md:text-2xl font-bold tracking-[0.15em] uppercase
-  bg-white px-6 sm:px-8 md:px-12 py-2 rounded-full shadow-xl cursor-pointer
-
-  transition-all duration-300 
-  hover:scale-110 hover:shadow-2xl hover:bg-gray-50
-  active:scale-95
-"
-              >
+                  disabled={games[currentIndex].isComingSoon}
+                  className={`relative shadow-xl hover:scale-105 text-sm sm:text-lg min-w-[200px] sm:min-w-[260px] py-4 sm:py-7 rounded-full overflow-hidden transition-all ${
+                    games[currentIndex].isComingSoon 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                      : 'bg-white text-black hover:bg-white border-1'
+                  }`}
+                >
+                  <motion.div
+                    initial={{ x: -70 }}
+                    animate={animateCircle ? { x: 100 } : { x: -100 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="absolute w-12 h-12 rounded-full bg-white shadow-md border"
+                  />
                   {games[currentIndex].name}
-                </div></Link>
+                </Button>
+              </div>
 
 
               <div className="text-center text-[10px] sm:text-xs text-gray-400 tracking-[0.2em] uppercase">
@@ -130,7 +151,7 @@ export default function Home() {
           </div>
 
           {/* NEXT BUTTON */}
-          <div className="z-20 flex flex-col items-center gap-2 flex-shrink-0">
+          <div className="z-20 flex flex-col items-center gap-2 flex-shrink-0 -mx-2 sm:mx-0">
             <button
               onClick={handleNext}
               className="bg-white rounded-full p-2 sm:p-3 md:p-4 shadow-xl hover:shadow-2xl transition-all hover:scale-110 cursor-pointer"
@@ -145,14 +166,14 @@ export default function Home() {
             <div
               className={`
     relative w-64 h-80 sm:w-72 sm:h-96 
-    md:w-96 md:h-[500px] lg:w-[420px] lg:h-[540px] 
+    md:w-[250px] md:h-[300px] lg:w-[350px] lg:h-[400px] 
     overflow-hidden transition-all duration-700 ease-out
-    translate-x-6
-    hover:scale-105 hover:-translate-y-2
+    translate-x-16
+    hover:scale-105 hover:-translate-y-2 opacity-40
   `}
             >
 
-              <div className="absolute inset-0 bg-gradient-to-l from-white/100 via-white/60 to-transparent z-20 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-l from-white via-white/60 to-transparent z-20 pointer-events-none" />
 
               <Image
                 src={games[getNextIndex()].image}
@@ -172,8 +193,8 @@ export default function Home() {
           src="/loop-background.png"
           alt="Pachinko Background"
           className="object-cover"
-          height={10}
-          width={300}
+          height={40}
+          width={500}
         />
       </div>
     </div>
