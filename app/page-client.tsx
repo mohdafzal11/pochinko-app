@@ -22,15 +22,17 @@ const games = [
     id: 2,
     name: 'BlockPad',
     image: '/blockpad.png',
-    description: 'CLICK TO PROCEED',
-    href: '/blockpad'
+    description: 'COMING SOON',
+    href: '/blockpad',
+    isComingSoon: true
   },
   {
     id: 3,
     name: 'Pachinko',
     image: '/pachinko.jpeg',
-    description: 'CLICK TO PROCEED',
-    href: '/pachinko'
+    description: 'COMING SOON',
+    href: '/pachinko',
+    isComingSoon: true
   }
 ];
 
