@@ -73,16 +73,16 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col justify-center overflow-x-hidden">
       {/* Game Carousel */}
-      <div className="min-h-[calc(100vh-80px)] relative w-full flex items-center justify-center pt-12">
+      <div className="min-h-[calc(100vh-80px)] relative w-full flex items-center justify-center">
         <div className="relative flex items-center justify-center w-full gap-4 md:gap-8 lg:gap-12">
 
           {/* LEFT CARD */}
           <div className="relative z-0 hidden sm:block">
             <div
               className={`
-    relative w-64 h-80 sm:w-72 sm:h-96 
-    md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[300px] 
-    xl:w-[310px] xl:h-[360px] 2xl:w-[400px] 2xl:h-[450px]
+    relative w-80 h-96 sm:w-96 sm:h-[480px] 
+    md:w-[350px] md:h-[420px] lg:w-[420px] lg:h-[500px] 
+    xl:w-[450px] xl:h-[540px] 2xl:w-[550px] 2xl:h-[660px]
     overflow-hidden transition-all duration-700 ease-out
     -translate-x-16
     hover:scale-105 hover:-translate-y-2 opacity-40
@@ -114,8 +114,8 @@ export default function Home() {
           <div className="relative z-10 flex flex-col items-center gap-4 md:gap-6 flex-shrink-0">
             <div
               key={currentIndex}
-              className="relative w-80 h-96 sm:w-[340px] sm:h-[420px] md:w-[440px] md:h-[560px]
-  lg:w-[400px] lg:h-[500px] xl:w-[430px] xl:h-[470px] 2xl:w-[600px] 2xl:h-[700px] overflow-hidden
+              className="relative w-96 h-[480px] sm:w-[450px] sm:h-[560px] md:w-[550px] md:h-[700px]
+  lg:w-[550px] lg:h-[660px] xl:w-[600px] xl:h-[720px] 2xl:w-[750px] 2xl:h-[900px] overflow-hidden
   transition-all duration-700 ease-out
   animate-fadeIn
   hover:scale-105 hover:-translate-y-2"
@@ -130,7 +130,7 @@ export default function Home() {
             </div>
 
             {/* TEXT BELOW */}
-            <div className='absolute -bottom-10 text-kode-monu space-y-2'>
+            <div className='absolute bottom-8 text-kode-monu space-y-2'>
               <div className="flex items-center justify-center">
                 <Button
                   onClick={handleClick}
@@ -173,9 +173,9 @@ export default function Home() {
           <div className="relative z-0 hidden sm:block">
             <div
               className={`
-    relative w-64 h-80 sm:w-72 sm:h-96 
-     md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[300px] 
-    xl:w-[310px] xl:h-[360px] 2xl:w-[400px] 2xl:h-[450px]
+    relative w-80 h-96 sm:w-96 sm:h-[480px] 
+    md:w-[350px] md:h-[420px] lg:w-[420px] lg:h-[500px] 
+    xl:w-[450px] xl:h-[540px] 2xl:w-[550px] 2xl:h-[660px]
     overflow-hidden transition-all duration-700 ease-out
     translate-x-16
     hover:scale-105 hover:-translate-y-2 opacity-40
