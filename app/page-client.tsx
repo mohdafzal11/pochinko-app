@@ -13,7 +13,7 @@ const games = [
   {
     id: 1,
     name: 'Gacha',
-    image: '/gacha.jpeg',
+    image: '/gacha.svg',
     description: 'COMING SOON',
     href: '/gacha',
     isComingSoon: true
@@ -21,7 +21,7 @@ const games = [
   {
     id: 2,
     name: 'BlockPad',
-    image: '/blockpad.png',
+    image: '/blockpad.svg',
     description: 'COMING SOON',
     href: '/blockpad',
     isComingSoon: true
@@ -29,7 +29,7 @@ const games = [
   {
     id: 3,
     name: 'Pachinko',
-    image: '/pachinko.jpeg',
+    image: '/pachinko.svg',
     description: 'COMING SOON',
     href: '/pachinko',
     isComingSoon: true
