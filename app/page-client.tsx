@@ -82,7 +82,7 @@ export default function Home() {
               className={`
     relative w-64 h-80 sm:w-72 sm:h-96 
     md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[300px] 
-    xl:w-[330px] xl:h-[380px] 2xl:w-[400px] 2xl:h-[450px]
+    xl:w-[310px] xl:h-[360px] 2xl:w-[400px] 2xl:h-[450px]
     overflow-hidden transition-all duration-700 ease-out
     -translate-x-16
     hover:scale-105 hover:-translate-y-2 opacity-40
@@ -115,7 +115,7 @@ export default function Home() {
             <div
               key={currentIndex}
               className="relative w-80 h-96 sm:w-[340px] sm:h-[420px] md:w-[440px] md:h-[560px]
-  lg:w-[400px] lg:h-[500px] xl:w-[450px] xl:h-[500px] 2xl:w-[600px] 2xl:h-[700px] overflow-hidden
+  lg:w-[400px] lg:h-[500px] xl:w-[430px] xl:h-[470px] 2xl:w-[600px] 2xl:h-[700px] overflow-hidden
   transition-all duration-700 ease-out
   animate-fadeIn
   hover:scale-105 hover:-translate-y-2"
@@ -175,7 +175,7 @@ export default function Home() {
               className={`
     relative w-64 h-80 sm:w-72 sm:h-96 
      md:w-[250px] md:h-[300px] lg:w-[300px] lg:h-[300px] 
-    xl:w-[330px] xl:h-[380px] 2xl:w-[400px] 2xl:h-[450px]
+    xl:w-[310px] xl:h-[360px] 2xl:w-[400px] 2xl:h-[450px]
     overflow-hidden transition-all duration-700 ease-out
     translate-x-16
     hover:scale-105 hover:-translate-y-2 opacity-40
