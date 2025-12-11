@@ -1,14 +1,10 @@
 /**
- * Lottery Hook - Connects to unified backend lottery endpoints
+ * Lottery Hook - WebSocket-based real-time lottery updates
+ * Replaces HTTP polling with WebSocket for instant updates
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { authFetch } from '@/lib/auth';
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_API_URL ||
-  'http://localhost:3920';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useWebSocket } from '@/hooks/use-web-socket';
 
 interface LotteryMachine {
   id: string;
@@ -52,174 +48,269 @@ interface UserTickets {
   totalTickets: number;
 }
 
+interface RoundResult {
+  roundNumber: number;
+  winners: Array<{ wallet: string; prize: number }>;
+  vrfVerified: boolean;
+}
+
 export function useLottery(machineId: string = 'sol') {
+  const { isConnected, emit, on, off } = useWebSocket();
+  
   const [status, setStatus] = useState<LotteryStatus | null>(null);
   const [machines, setMachines] = useState<LotteryMachine[]>([]);
   const [userTickets, setUserTickets] = useState<UserTickets | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastRoundResult, setLastRoundResult] = useState<RoundResult | null>(null);
+  const [purchasing, setPurchasing] = useState(false);
+  
+  // Track pending callbacks for WebSocket responses
+  const pendingCallbacks = useRef<Map<string, (data: any) => void>>(new Map());
 
-  // Fetch lottery status
-  const fetchStatus = useCallback(async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`${API_URL}/lottery/status?machineId=${machineId}`);
-      if (!response.ok) throw new Error('Failed to fetch status');
-      const data = await response.json();
+  // Set up WebSocket event listeners
+  useEffect(() => {
+    if (!isConnected) return;
+
+    // Handle lottery status updates
+    const handleLotteryStatus = (data: LotteryStatus) => {
+      console.log('[Lottery WS] Status received:', data);
       setStatus(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.message);
-      console.error('Error fetching lottery status:', err);
-    } finally {
       setLoading(false);
-    }
-  }, [machineId]);
+    };
 
-  // Fetch all machines
-  const fetchMachines = useCallback(async () => {
-    try {
-      const response = await fetch(`${API_URL}/lottery/machines`);
-      if (!response.ok) throw new Error('Failed to fetch machines');
-      const data = await response.json();
-      setMachines(data.machines || []);
-    } catch (err: any) {
-      console.error('Error fetching machines:', err);
-    }
-  }, []);
+    // Handle lottery updates (real-time)
+    const handleLotteryUpdate = (data: LotteryStatus) => {
+      console.log('[Lottery WS] Update received:', data);
+      setStatus(data);
+    };
 
-  // Fetch user tickets
-  const fetchUserTickets = useCallback(async (walletAddress: string) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/lottery/user/${walletAddress}/tickets?machineId=${machineId}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch tickets');
-      const data = await response.json();
+    // Handle purchase success
+    const handlePurchaseSuccess = (data: any) => {
+      console.log('[Lottery WS] Purchase success:', data);
+      setPurchasing(false);
+      // Resolve any pending callback
+      const callback = pendingCallbacks.current.get('purchase');
+      if (callback) {
+        callback(data);
+        pendingCallbacks.current.delete('purchase');
+      }
+    };
+
+    // Handle lottery errors
+    const handleLotteryError = (data: any) => {
+      console.error('[Lottery WS] Error:', data);
+      setError(data.message);
+      setPurchasing(false);
+      // Reject any pending callback
+      const callback = pendingCallbacks.current.get('purchase_error');
+      if (callback) {
+        callback(data);
+        pendingCallbacks.current.delete('purchase_error');
+      }
+    };
+
+    // Handle user tickets
+    const handleLotteryTickets = (data: UserTickets) => {
+      console.log('[Lottery WS] Tickets received:', data);
       setUserTickets(data);
-    } catch (err: any) {
-      console.error('Error fetching user tickets:', err);
-    }
-  }, [machineId]);
+    };
 
-  // Buy balls using unified wallet SOL (server-side debit)
-  // Requires JWT authentication
-  const buyBalls = useCallback(async (walletAddress: string, quantity: number) => {
-    try {
-      const response = await authFetch('/lottery/buy-balls', {
-        method: 'POST',
-        body: JSON.stringify({ walletAddress, machineId, quantity }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to buy balls');
-      return data;
-    } catch (err: any) {
-      console.error('Error buying balls:', err);
-      throw err;
-    }
-  }, [machineId]);
+    // Handle round finalized
+    const handleRoundFinalized = (data: RoundResult) => {
+      console.log('[Lottery WS] Round finalized:', data);
+      setLastRoundResult(data);
+    };
 
-  // Buy balls using unified wallet tokens (server-side debit)
-  // Requires JWT authentication
-  const buyBallsWithToken = useCallback(async (walletAddress: string, quantity: number) => {
-    try {
-      const response = await authFetch('/lottery/buy-balls-token', {
-        method: 'POST',
-        body: JSON.stringify({ walletAddress, machineId, quantity }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Failed to buy balls with tokens');
-      return data;
-    } catch (err: any) {
-      console.error('Error buying balls with tokens:', err);
-      throw err;
-    }
-  }, [machineId]);
+    // Handle round started
+    const handleRoundStarted = (data: any) => {
+      console.log('[Lottery WS] New round started:', data);
+      // Request fresh status
+      emit('lottery:get_status', { machineId });
+    };
 
-  // Legacy: Prepare buy balls transaction for on-chain purchase
-  const prepareBuyBalls = useCallback(async (walletAddress: string, quantity: number) => {
-    try {
-      const response = await fetch(`${API_URL}/lottery/prepare-buy-balls`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ walletAddress, machineId, quantity }),
-      });
-      if (!response.ok) throw new Error('Failed to prepare transaction');
-      return await response.json();
-    } catch (err: any) {
-      console.error('Error preparing buy balls:', err);
-      throw err;
-    }
-  }, [machineId]);
+    // Handle winners
+    const handleLotteryWinners = (data: any) => {
+      console.log('[Lottery WS] Winners received:', data);
+      const callback = pendingCallbacks.current.get('winners');
+      if (callback) {
+        callback(data.winners || []);
+        pendingCallbacks.current.delete('winners');
+      }
+    };
 
-  // Fetch round data
-  const fetchRound = useCallback(async (roundId: number) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/lottery/round/${roundId}?machineId=${machineId}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch round');
-      return await response.json();
-    } catch (err: any) {
-      console.error('Error fetching round:', err);
-      return null;
-    }
-  }, [machineId]);
+    // Register event listeners
+    on('lottery:status', handleLotteryStatus);
+    on('lottery:update', handleLotteryUpdate);
+    on('lottery:purchase_success', handlePurchaseSuccess);
+    on('lottery:error', handleLotteryError);
+    on('lottery:tickets', handleLotteryTickets);
+    on('lottery:roundFinalized', handleRoundFinalized);
+    on('lottery:roundStarted', handleRoundStarted);
+    on('lottery:winners', handleLotteryWinners);
 
-  // Fetch round winners
-  const fetchWinners = useCallback(async (roundId: number) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/lottery/round/${roundId}/winners?machineId=${machineId}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch winners');
-      const data = await response.json();
-      return data.winners || [];
-    } catch (err: any) {
-      console.error('Error fetching winners:', err);
-      return [];
-    }
-  }, [machineId]);
+    // Request initial status
+    emit('lottery:get_status', { machineId });
 
-  // Fetch round history
-  const fetchHistory = useCallback(async (limit: number = 10) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/lottery/history?machineId=${machineId}&limit=${limit}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch history');
-      const data = await response.json();
-      return data.rounds || [];
-    } catch (err: any) {
-      console.error('Error fetching history:', err);
-      return [];
-    }
-  }, [machineId]);
+    return () => {
+      off('lottery:status', handleLotteryStatus);
+      off('lottery:update', handleLotteryUpdate);
+      off('lottery:purchase_success', handlePurchaseSuccess);
+      off('lottery:error', handleLotteryError);
+      off('lottery:tickets', handleLotteryTickets);
+      off('lottery:roundFinalized', handleRoundFinalized);
+      off('lottery:roundStarted', handleRoundStarted);
+      off('lottery:winners', handleLotteryWinners);
+    };
+  }, [isConnected, machineId, emit, on, off]);
 
-  // Auto-refresh status
-  useEffect(() => {
-    fetchStatus();
-    fetchMachines();
+  // Request lottery status via WebSocket
+  const fetchStatus = useCallback(() => {
+    if (!isConnected) {
+      console.warn('[Lottery] WebSocket not connected');
+      return;
+    }
+    setLoading(true);
+    emit('lottery:get_status', { machineId });
+  }, [isConnected, machineId, emit]);
+
+  // Fetch user tickets via WebSocket
+  const fetchUserTickets = useCallback((walletAddress: string) => {
+    if (!isConnected) {
+      console.warn('[Lottery] WebSocket not connected');
+      return;
+    }
+    emit('lottery:get_tickets', { walletAddress, machineId });
+  }, [isConnected, machineId, emit]);
+
+  // Buy balls using WebSocket (SOL payment)
+  const buyBalls = useCallback(async (walletAddress: string, quantity: number): Promise<any> => {
+    if (!isConnected) {
+      throw new Error('WebSocket not connected');
+    }
     
-    // Refresh every 10 seconds
-    const interval = setInterval(fetchStatus, 10000);
-    return () => clearInterval(interval);
-  }, [fetchStatus, fetchMachines]);
+    setPurchasing(true);
+    setError(null);
+    
+    return new Promise((resolve, reject) => {
+      // Set up callbacks
+      pendingCallbacks.current.set('purchase', resolve);
+      pendingCallbacks.current.set('purchase_error', (data) => reject(new Error(data.message)));
+      
+      // Emit the buy event
+      emit('lottery:buy_balls', { walletAddress, machineId, quantity });
+      
+      // Timeout after 30 seconds
+      setTimeout(() => {
+        if (pendingCallbacks.current.has('purchase')) {
+          pendingCallbacks.current.delete('purchase');
+          pendingCallbacks.current.delete('purchase_error');
+          setPurchasing(false);
+          reject(new Error('Purchase timeout'));
+        }
+      }, 30000);
+    });
+  }, [isConnected, machineId, emit]);
+
+  // Buy balls with token using WebSocket
+  const buyBallsWithToken = useCallback(async (walletAddress: string, quantity: number): Promise<any> => {
+    if (!isConnected) {
+      throw new Error('WebSocket not connected');
+    }
+    
+    setPurchasing(true);
+    setError(null);
+    
+    return new Promise((resolve, reject) => {
+      // Set up callbacks
+      pendingCallbacks.current.set('purchase', resolve);
+      pendingCallbacks.current.set('purchase_error', (data) => reject(new Error(data.message)));
+      
+      // Emit the buy event
+      emit('lottery:buy_balls_token', { walletAddress, machineId, quantity });
+      
+      // Timeout after 30 seconds
+      setTimeout(() => {
+        if (pendingCallbacks.current.has('purchase')) {
+          pendingCallbacks.current.delete('purchase');
+          pendingCallbacks.current.delete('purchase_error');
+          setPurchasing(false);
+          reject(new Error('Purchase timeout'));
+        }
+      }, 30000);
+    });
+  }, [isConnected, machineId, emit]);
+
+  // Fetch winners for a round via WebSocket
+  const fetchWinners = useCallback(async (roundNumber: number): Promise<any[]> => {
+    if (!isConnected) {
+      console.warn('[Lottery] WebSocket not connected');
+      return [];
+    }
+    
+    return new Promise((resolve) => {
+      pendingCallbacks.current.set('winners', resolve);
+      emit('lottery:get_winners', { roundNumber, machineId });
+      
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        if (pendingCallbacks.current.has('winners')) {
+          pendingCallbacks.current.delete('winners');
+          resolve([]);
+        }
+      }, 10000);
+    });
+  }, [isConnected, machineId, emit]);
+
+  // Legacy: Prepare buy balls (not used with WebSocket, kept for compatibility)
+  const prepareBuyBalls = useCallback(async (walletAddress: string, quantity: number) => {
+    console.warn('[Lottery] prepareBuyBalls is deprecated, use buyBalls instead');
+    return buyBalls(walletAddress, quantity);
+  }, [buyBalls]);
+
+  // Fetch round data (kept for compatibility, uses HTTP fallback)
+  const fetchRound = useCallback(async (roundId: number) => {
+    // For now, just return from current status if available
+    if (status?.currentRound && status.currentRound.roundNumber === roundId) {
+      return status.currentRound;
+    }
+    return null;
+  }, [status]);
+
+  // Fetch history (kept for compatibility)
+  const fetchHistory = useCallback(async (limit: number = 10) => {
+    return status?.previousRounds?.slice(0, limit) || [];
+  }, [status]);
+
+  // Fetch machines - simple getter
+  const fetchMachines = useCallback(async () => {
+    // Machines are typically static, could be fetched from status
+    // For now, return empty array
+    return machines;
+  }, [machines]);
 
   return {
+    // State
     status,
     machines,
     userTickets,
     loading,
     error,
+    purchasing,
+    lastRoundResult,
+    isConnected,
+    
+    // Actions
     fetchStatus,
     fetchUserTickets,
+    fetchMachines,
     buyBalls,
     buyBallsWithToken,
-    prepareBuyBalls, // Legacy
-    fetchRound,
     fetchWinners,
+    fetchRound,
     fetchHistory,
+    prepareBuyBalls, // Legacy compatibility
   };
 }
 

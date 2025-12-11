@@ -57,6 +57,9 @@ export default function Pachinko() {
     userTickets,
     loading,
     error,
+    purchasing,
+    lastRoundResult,
+    isConnected: lotteryWsConnected,
     fetchStatus,
     fetchUserTickets,
     buyBalls,
@@ -64,13 +67,8 @@ export default function Pachinko() {
     fetchWinners,
   } = useLottery();
 
-  useEffect(() => {
-    fetchStatus();
-    const interval = setInterval(() => {
-      fetchStatus();
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [fetchStatus]);
+  // WebSocket automatically fetches status on connection, no polling needed
+  // Status updates are received in real-time via WebSocket
 
   useEffect(() => {
     if (status?.currentRound?.timeRemaining) {
@@ -86,27 +84,18 @@ export default function Pachinko() {
     const interval = setInterval(() => {
       setTimeLeft((prevTime) => {
         const newTime = prevTime - 1;
-        console.log("Time left:", newTime);
-        
         if (newTime <= 0) {
-          console.log("Time's up - fetching final status");
-          fetchStatus().then(() => {
-            setTimeout(() => {
-              if (ballsAnimating) {
-                console.log("Checking results when time ended");
-                setBallsAnimating(false);
-                checkRoundResult();
-              }
-            }, 1000);
-          });
+          // WebSocket will notify us when round ends, no need to poll
+          if (ballsAnimating) {
+            console.log("Timer ended - waiting for WebSocket round result");
+          }
         }
-        
-        return newTime;
+        return Math.max(0, newTime);
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [status?.currentRound, ballsAnimating, fetchStatus]);
+  }, [status?.currentRound, ballsAnimating]);
 
   useEffect(() => {
     console.log("Status updated:", status);
@@ -120,6 +109,34 @@ export default function Pachinko() {
       checkRoundResult();
     }
   }, [status, ballsAnimating]);
+
+  // Handle WebSocket round finalization result
+  useEffect(() => {
+    if (lastRoundResult && publicKey) {
+      console.log("[WS] Round finalized via WebSocket:", lastRoundResult);
+      const userWin = lastRoundResult.winners?.find(
+        (w) => w.wallet === publicKey.toString() || w.wallet.startsWith(publicKey.toString().slice(0, 8))
+      );
+      
+      if (userWin) {
+        setRoundResult({
+          won: true,
+          amount: userWin.prize,
+          roundNumber: lastRoundResult.roundNumber
+        });
+        setShowResult(true);
+        setBallsAnimating(false);
+      } else if (userTickets?.currentRound?.ticketCount && userTickets.currentRound.ticketCount > 0) {
+        // User had tickets but didn't win
+        setRoundResult({
+          won: false,
+          roundNumber: lastRoundResult.roundNumber
+        });
+        setShowResult(true);
+        setBallsAnimating(false);
+      }
+    }
+  }, [lastRoundResult, publicKey, userTickets]);
 
   const checkRoundResult = async () => {
     console.log("checkRoundResult called");
@@ -202,12 +219,13 @@ export default function Pachinko() {
         ? await buyBalls(publicKey.toString(), ballAmount)
         : await buyBallsWithToken(publicKey.toString(), ballAmount);
 
-      toast.success(result.message, {
-        description: `New balance: ${result.newBalance.toFixed(4)} ${paymentMethod === 'sol' ? 'SOL' : 'tokens'}`,
+      toast.success(result.message || `Successfully purchased ${ballAmount} balls!`, {
+        description: result.newBalance ? `New balance: ${result.newBalance.toFixed(4)} ${paymentMethod === 'sol' ? 'SOL' : 'tokens'}` : undefined,
       });
 
-      fetchStatus();
-      fetchUserTickets(publicKey.toString());
+      // WebSocket automatically broadcasts updated status - no need to fetch manually
+      // Tickets are also updated via WebSocket
+      fetchUserTickets(publicKey.toString()); // Just update user's tickets
     } catch (err: any) {
       console.error('Error buying balls:', err);
       toast.error('Failed to buy balls', {
