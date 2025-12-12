@@ -58,10 +58,19 @@ const Loader = () => {
             playsInline
           >
             {/* WebM with alpha channel for transparency support (most browsers including mobile) */}
-            <source src="/loop.webm" type="video/webm" />
+            {/* <source src="/loop.webm" type="video/webm" /> */}
             {/* MP4 fallback for browsers that don't support WebM */}
             {/* <source src="/loop.mp4" type="video/mp4" /> */}
-          </video>
+            <source 
+            src="/assets/videos/loop.mov" 
+            type='video/mp4; codecs="hvc1"' />
+            <source 
+            src="/assets/videos/loop.webm" 
+            type="video/webm"></source>
+          </video> 
+              {/* <video width="600" height="100%" autoPlay loop muted playsInline> */}
+              {/* </video> */}
+                
           <div className='text-center text-kode-monu'>
             {showEnterButton ?
               <Button className='bg-[#DD5622] hover:bg-[#DD5622]/90 text-white ' onClick={enterWorld}>Explore</Button> :
