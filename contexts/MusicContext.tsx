@@ -20,7 +20,7 @@ export const useMusicContext = () => {
 };
 
 export const MusicProvider = ({ children }: { children: ReactNode }) => {
-  const [isPlaying, setIsPlaying] = useState(true); // Start playing by default
+  const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
 
   useEffect(() => {
@@ -34,6 +34,8 @@ export const MusicProvider = ({ children }: { children: ReactNode }) => {
     // Only override default if user has explicitly set a preference
     if (savedPlaying !== null) {
       setIsPlaying(savedPlaying === 'true');
+    }else{
+      setIsPlaying(true);
     }
   }, []);
 
