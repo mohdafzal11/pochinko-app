@@ -1,12 +1,40 @@
 'use client'
 
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import { MusicToggleButton } from './music-toggle-button';
 import { useLoaderContext } from '../contexts/LoaderContext';
+import { useMusicContext } from '../contexts/MusicContext';
 import { Button } from '@/components/ui/button';
 
 const Loader = () => {
   const { progress, showEnterButton, enterWorld } = useLoaderContext();
+  const { isPlaying, volume } = useMusicContext();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio('/assets/sfx/01 - loader.wav');
+      audioRef.current.loop = true;
+    }
+
+    audioRef.current.volume = volume;
+
+    if (isPlaying) {
+      audioRef.current.play().catch(() => {
+        // Browser may block autoplay until user interaction
+      });
+    } else {
+      audioRef.current.pause();
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [isPlaying, volume]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden z-50">

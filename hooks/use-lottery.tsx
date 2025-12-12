@@ -6,10 +6,23 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useWebSocket } from '@/hooks/use-web-socket';
 
-interface LotteryMachine {
+export interface LotteryMachine {
   id: string;
-  address: string;
   name: string;
+  programId: string;
+  machineAddress: string;
+  paymentMint: string;
+  tokenSymbol: string;
+  tokenDecimals: number;
+  baseBallPrice: number;
+  isActive: boolean;
+  isPaused: boolean;
+  roundDuration: number;
+  theme: {
+    primaryColor: string;
+    secondaryColor: string;
+    icon: string;
+  };
 }
 
 interface RoundStatus {
@@ -283,23 +296,37 @@ export function useLottery(machineId: string = 'sol') {
     return status?.previousRounds?.slice(0, limit) || [];
   }, [status]);
 
-  // Fetch machines - simple getter
-  const fetchMachines = useCallback(async () => {
-    // Machines are typically static, could be fetched from status
-    // For now, return empty array
-    return machines;
+  // Fetch machines from API
+  const fetchMachines = useCallback(async (): Promise<LotteryMachine[]> => {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3920';
+      const response = await fetch(`${API_URL}/lottery/machines`);
+      if (!response.ok) throw new Error('Failed to fetch machines');
+      const data = await response.json();
+      const fetchedMachines = data.machines || [];
+      setMachines(fetchedMachines);
+      return fetchedMachines;
+    } catch (err: any) {
+      console.error('[Lottery] Error fetching machines:', err);
+      return machines;
+    }
   }, [machines]);
+
+  // Get current machine info
+  const currentMachine = machines.find(m => m.id === machineId) || null;
 
   return {
     // State
     status,
     machines,
+    currentMachine,
     userTickets,
     loading,
     error,
     purchasing,
     lastRoundResult,
     isConnected,
+    machineId,
     
     // Actions
     fetchStatus,

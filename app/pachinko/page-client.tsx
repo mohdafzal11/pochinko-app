@@ -1,15 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useWebSocket } from '@/hooks/use-web-socket';
 import { useSolanaWallet } from '@/hooks/use-solana-wallet';
 import { useUnifiedWallet } from '@/hooks/use-unified-wallet';
-import useLottery from '@/hooks/use-lottery';
+import { useLottery } from '@/hooks/use-lottery';
+import MachineSelector, { MachineInfo, useMachines } from '@/components/machine-selector';
 import { Round, Tile, HistoryRound } from '@/types/game';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, Loader2, Ticket, Trophy, TrendingDown, History } from "lucide-react";
+import { Gamepad2, Music, HelpCircle, Package, Store, Sparkles, X, Loader2, Ticket, Trophy, TrendingDown, History, Coins } from "lucide-react";
 import FloatingIcon from '@/components/floating-icon';
 import { Button } from '@/components/ui/button';
 import ConnectWalletModal from '@/components/connect-wallet-modal';
@@ -26,6 +27,9 @@ export default function Pachinko() {
   const { isConnected: walletConnected, balance: walletBalance, publicKey } = useSolanaWallet();
   const router = useRouter();
 
+  // Machine selection state
+  const [selectedMachineId, setSelectedMachineId] = useState<string>('sol');
+  const { machines, loading: machinesLoading } = useMachines();
 
   const [animateCircle, setAnimateCircle] = useState(false);
   const [buying, setBuying] = useState(false);
@@ -40,6 +44,9 @@ export default function Pachinko() {
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [showHowToPlayModal, setShowHowToPlayModal] = useState(false);
   const [showInventoryModal, setShowInventoryModal] = useState(false);
+
+  // Get current selected machine info
+  const currentMachine = machines.find(m => m.id === selectedMachineId) || machines[0];
 
   const {
     balance: unifiedBalance,
@@ -60,12 +67,13 @@ export default function Pachinko() {
     purchasing,
     lastRoundResult,
     isConnected: lotteryWsConnected,
+    currentMachine: lotteryMachine,
     fetchStatus,
     fetchUserTickets,
     buyBalls,
     buyBallsWithToken,
     fetchWinners,
-  } = useLottery();
+  } = useLottery(selectedMachineId);
 
   // WebSocket automatically fetches status on connection, no polling needed
   // Status updates are received in real-time via WebSocket
@@ -354,7 +362,46 @@ export default function Pachinko() {
                 </button>
 
                 <div className="space-y-4">
-                  <h2 className="text-2xl font-bold text-gray-800">Game Controls</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-gray-800">Game Controls</h2>
+                    {/* Machine Selector */}
+                    {machines.length > 1 && (
+                      <MachineSelector
+                        machines={machines}
+                        selectedMachine={selectedMachineId}
+                        onSelectMachine={setSelectedMachineId}
+                        compact={true}
+                        disabled={ballsAnimating}
+                      />
+                    )}
+                  </div>
+
+                  {/* Current Machine Info */}
+                  {currentMachine && (
+                    <div 
+                      className="px-3 py-2 rounded-lg border flex items-center gap-2"
+                      style={{ 
+                        backgroundColor: currentMachine.theme.primaryColor + '10',
+                        borderColor: currentMachine.theme.primaryColor + '30',
+                      }}
+                    >
+                      <span className="text-xl">{currentMachine.theme.icon}</span>
+                      <div className="flex-1">
+                        <span className="text-sm font-bold" style={{ color: currentMachine.theme.primaryColor }}>
+                          {currentMachine.tokenSymbol}
+                        </span>
+                        <span className="text-xs text-gray-500 ml-2">{currentMachine.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">Ball Price</div>
+                        <div className="text-sm font-mono font-bold" style={{ color: currentMachine.theme.primaryColor }}>
+                          {(currentMachine.baseBallPrice / Math.pow(10, currentMachine.tokenDecimals)).toFixed(
+                            currentMachine.tokenDecimals > 6 ? 4 : 2
+                          )} {currentMachine.tokenSymbol}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {currentRound?.status === "Active" && (
                     <motion.div
@@ -456,8 +503,18 @@ export default function Pachinko() {
                   <div className="bg-gray-50 p-3 rounded-lg">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Cost:</span>
-                      <span className="text-lg font-bold text-gray-900">
-                        {(betAmount * ballAmount).toFixed(2)} {paymentMethod === 'sol' ? 'SOL' : 'PACHI'}
+                      <span className="text-lg font-bold" style={{ color: currentMachine?.theme.primaryColor || '#1a1a2e' }}>
+                        {currentMachine ? (
+                          <>
+                            {((currentMachine.baseBallPrice / Math.pow(10, currentMachine.tokenDecimals)) * ballAmount).toFixed(
+                              currentMachine.tokenDecimals > 6 ? 4 : 2
+                            )} {currentMachine.tokenSymbol}
+                          </>
+                        ) : (
+                          <>
+                            {(betAmount * ballAmount).toFixed(2)} {paymentMethod === 'sol' ? 'SOL' : 'PACHI'}
+                          </>
+                        )}
                       </span>
                     </div>
                   </div>
