@@ -51,16 +51,20 @@ const Loader = () => {
         </div>
         <div className="relative z-10 w-80 h-80 md:w-96 md:h-96 lg:w-128 lg:h-128">
           <video
-            src="/loop.mp4"
             className="object-contain"
             autoPlay
             loop
             muted
             playsInline
-          />
+          >
+            {/* WebM with alpha channel for transparency support (most browsers including mobile) */}
+            <source src="/loop.webm" type="video/webm" />
+            {/* MP4 fallback for browsers that don't support WebM */}
+            {/* <source src="/loop.mp4" type="video/mp4" /> */}
+          </video>
           <div className='text-center text-kode-monu'>
             {showEnterButton ?
-              <Button className='bg-[#DD5622] hover:bg-[#DD5622]/90 text-white ' onClick={enterWorld}>Enter the world of machines</Button> :
+              <Button className='bg-[#DD5622] hover:bg-[#DD5622]/90 text-white ' onClick={enterWorld}>Explore</Button> :
               <span>Loading... {progress}%</span>}
           </div>
         </div>
