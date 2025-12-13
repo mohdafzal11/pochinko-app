@@ -299,21 +299,24 @@ export default function Blockpad() {
   }, [wsConnected, playMode, emit, on, off]);
 
   // Track last 2 seconds before round end to prevent late bets
+  // Only applies when round is active with a valid endTime
   useEffect(() => {
-    if (!currentRound || !currentRound.endTime) {
+    // Only track closing time when round is active with a valid future endTime
+    if (!currentRound || !currentRound.endTime || currentRound.status !== 'active') {
       setIsClosingSoon(false);
       return;
     }
 
     const updateFlag = () => {
       const msLeft = currentRound.endTime - Date.now();
-      setIsClosingSoon(msLeft <= 2000);
+      // Only set closing soon if endTime is in the future and less than 2 seconds away
+      setIsClosingSoon(msLeft > 0 && msLeft <= 2000);
     };
 
     updateFlag();
     const interval = setInterval(updateFlag, 250);
     return () => clearInterval(interval);
-  }, [currentRound?.endTime]);
+  }, [currentRound?.endTime, currentRound?.status]);
 
 
 
