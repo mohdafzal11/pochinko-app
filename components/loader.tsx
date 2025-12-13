@@ -24,7 +24,6 @@ const Loader = () => {
 
     if (isPlaying) {
       audioRef.current.play().catch(() => {
-        // Browser may block autoplay until user interaction
       });
     } else {
       audioRef.current.pause();
@@ -37,40 +36,6 @@ const Loader = () => {
       }
     };
   }, [isPlaying, volume]);
-
-  // Detect WebM support with alpha (Safari/iOS don't support WebM alpha)
-  useEffect(() => {
-    // iOS devices and Safari don't support WebM alpha
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    setSupportsWebM(!isIOS && !isSafari);
-
-    // Detect network speed for Safari/iOS
-    if (isIOS || isSafari) {
-      // Try Network Information API first (not supported by Safari)
-      const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-      if (connection) {
-        const downlink = connection.downlink; // in Mbps
-        if (downlink && downlink < 3) {
-          setUseSmallGif(true);
-        }
-      } else {
-        // Fallback: measure download speed with a small test file
-        const startTime = Date.now();
-        const img = new window.Image();
-        img.onload = () => {
-          const duration = (Date.now() - startTime) / 1000; // seconds
-          const fileSize = 0.05; // 50KB in MB
-          const speed = fileSize / duration; // MB/s
-          const speedMbps = speed * 8; // Convert to Mbps
-          if (speedMbps < 3) {
-            setUseSmallGif(true);
-          }
-        };
-        img.src = '/loop-background.png?t=' + Date.now(); // Use existing image as test
-      }
-    }
-  }, []);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center overflow-hidden z-50">
@@ -88,26 +53,12 @@ const Loader = () => {
         <div className="relative z-10 flex flex-col items-center justify-center">
           {/* Animation with transparency */}
           <div className="w-80 h-80 md:w-96 md:h-96 lg:w-128 lg:h-128 relative">
-            {!supportsWebM ? (
-              // Safari/iOS: GIF with transparency - use small GIF on slow network
-              <img
+             <img
                 src={useSmallGif ? "/assets/videos/loader-small.gif" : "/assets/videos/loader.gif"}
                 alt="Loading animation"
                 className="w-full h-full object-contain"
                 style={{ maxWidth: '100%', maxHeight: '100%' }}
               />
-            ) : (
-              // Chrome/Firefox/Edge: WebM with alpha (230KB)
-              <video
-                className="object-contain w-full h-full"
-                autoPlay
-                loop
-                muted
-                playsInline
-              >
-                <source src="/assets/videos/loader.webm" type="video/webm" />
-              </video>
-            )}
           </div>
           
           {/* Loading Text / Enter Button - positioned below GIF */}
