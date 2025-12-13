@@ -35,7 +35,7 @@ export default function Pachinko() {
   const [buying, setBuying] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'sol' | 'token'>('sol');
   const [playMode, setPlayMode] = useState(false);
-  const [betAmount, setBetAmount] = useState<number>(0.1);
+  // Ball price is determined by the machine, not user input
   const [ballAmount, setBallAmount] = useState<number>(1);
   const [ballsAnimating, setBallsAnimating] = useState(false);
   const [roundResult, setRoundResult] = useState<{ won: boolean; amount?: number; roundNumber?: number } | null>(null);
@@ -207,7 +207,9 @@ export default function Pachinko() {
       return;
     }
 
-    const cost = ballAmount * betAmount;
+    // Calculate cost using machine ball price
+    const ballPrice = currentMachine ? currentMachine.baseBallPrice / Math.pow(10, currentMachine.tokenDecimals) : 0.01;
+    const cost = ballAmount * ballPrice;
     if (paymentMethod === 'sol') {
       if (unifiedBalance < cost) {
         toast.error(`Insufficient SOL balance. Need ${cost.toFixed(4)} SOL, have ${unifiedBalance.toFixed(4)} SOL`);
@@ -472,19 +474,6 @@ export default function Pachinko() {
                     )}
                   </motion.div>
 
-                  {/* Bet Amount */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">Bet Amount (SOL)</label>
-                    <input
-                      type="number"
-                      value={betAmount}
-                      onChange={(e) => setBetAmount(Number(e.target.value))}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      step="0.1"
-                      min="0.1"
-                    />
-                  </div>
-
                   {/* Balls Amount */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Buy Lottery Balls</label>
@@ -512,7 +501,7 @@ export default function Pachinko() {
                           </>
                         ) : (
                           <>
-                            {(betAmount * ballAmount).toFixed(2)} {paymentMethod === 'sol' ? 'SOL' : 'PACHI'}
+                            {(0.01 * ballAmount).toFixed(2)} SOL
                           </>
                         )}
                       </span>
@@ -523,7 +512,14 @@ export default function Pachinko() {
                   <div className="space-y-3">
                     <Button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold"
                       onClick={handleBuyBalls}
-                      disabled={buying || ballAmount < 1 || showResult || timeLeft <= 0}
+                      disabled={
+                        buying || 
+                        ballAmount < 1 || 
+                        showResult || 
+                        !currentRound ||
+                        (currentRound.status !== 'Active' && currentRound.status !== 'Idle') ||
+                        (currentRound.status === 'Active' && timeLeft <= 2)
+                      }
                     >
                       {buying ? (
                         <>

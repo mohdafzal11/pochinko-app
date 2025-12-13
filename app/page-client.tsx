@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useLoaderContext } from '@/contexts/LoaderContext';
-import Loader from '@/components/laoder';
+import Loader from '@/components/loader';
 
 const games = [
   {

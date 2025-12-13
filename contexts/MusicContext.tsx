@@ -31,11 +31,10 @@ export const MusicProvider = ({ children }: { children: ReactNode }) => {
       setVolume(parseFloat(savedVolume));
     }
     
-    // Only override default if user has explicitly set a preference
     if (savedPlaying !== null) {
       setIsPlaying(savedPlaying === 'true');
-    }else{
-      setIsPlaying(true);
+    } else {
+      setIsPlaying(false);
     }
   }, []);
 
