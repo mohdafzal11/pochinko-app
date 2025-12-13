@@ -517,7 +517,8 @@ export default function Pachinko() {
                         ballAmount < 1 || 
                         showResult || 
                         !currentRound ||
-                        (currentRound.status !== 'Active' && currentRound.status !== 'Idle') ||
+                        currentRound.status === 'Ended' ||
+                        currentRound.status === 'Finalized' ||
                         (currentRound.status === 'Active' && timeLeft <= 2)
                       }
                     >
