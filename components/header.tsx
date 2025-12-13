@@ -34,11 +34,16 @@ const Header = () => {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="hover:text-foreground transition-colors text-kode-monu"
+                            className="hover:text-foreground transition-colors text-kode-monu relative inline-block min-w-[120px] text-center"
                             onMouseEnter={() => setHoveredItem(item.href)}
                             onMouseLeave={() => setHoveredItem(null)}
                         >
-                            {hoveredItem === item.href ? item.japanese : item.english}
+                            <span className={`transition-opacity duration-300 ${hoveredItem === item.href ? 'opacity-0' : 'opacity-100'}`}>
+                                {item.english}
+                            </span>
+                            <span className={`absolute inset-0 transition-opacity duration-300 flex items-center justify-center ${hoveredItem === item.href ? 'opacity-100' : 'opacity-0'}`}>
+                                {item.japanese}
+                            </span>
                         </Link>
                     ))}
                     <ConnectWallet />
@@ -62,12 +67,17 @@ const Header = () => {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className="hover:text-foreground transition-colors py-2 text-kode-monu"
+                                className="hover:text-foreground transition-colors py-2 text-kode-monu relative inline-block"
                                 onClick={toggleMenu}
                                 onMouseEnter={() => setHoveredItem(item.href)}
                                 onMouseLeave={() => setHoveredItem(null)}
                             >
-                                {hoveredItem === item.href ? item.japanese : item.english}
+                                <span className={`transition-opacity duration-300 ${hoveredItem === item.href ? 'opacity-0' : 'opacity-100'}`}>
+                                    {item.english}
+                                </span>
+                                <span className={`absolute inset-0 transition-opacity duration-300 flex items-center ${hoveredItem === item.href ? 'opacity-100' : 'opacity-0'}`}>
+                                    {item.japanese}
+                                </span>
                             </Link>
                         ))}
                         <ConnectWallet />
@@ -78,4 +88,4 @@ const Header = () => {
     );
 }
 
-export default Header;
+export default Header
