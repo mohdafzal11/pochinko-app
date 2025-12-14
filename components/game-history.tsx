@@ -106,7 +106,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           >
             {/* Backdrop */}
             <div 
@@ -223,7 +223,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
                                 </p>
                               )}
                               <p className="text-xs text-gray-500">
-                                Winning Tile: #{(round.winningTile ?? 0) + 1}
+                                {game === 'lottery' ? 'Winning Ball' : 'Winning Tile'}: #{(round.winningTile ?? 0) + 1}
                               </p>
                             </div>
                           </div>
@@ -231,7 +231,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
                           {/* Expandable Details */}
                           {userBets.length > 0 && (
                             <div className="mt-3 pt-3 border-t border-gray-200">
-                              <p className="text-sm text-gray-600 mb-2">Your Bets:</p>
+                              <p className="text-sm text-gray-600 mb-2">{game === 'lottery' ? 'Your Balls:' : 'Your Bets:'}</p>
                               <div className="grid grid-cols-2 gap-2 text-sm">
                                 {userBets.map((bet, idx) => (
                                   <div 
@@ -240,7 +240,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
                                       bet.won ? 'bg-green-100' : 'bg-gray-100'
                                     }`}
                                   >
-                                    <span>Tile #{bet.tileIndex + 1}</span>
+                                    <span>{game === 'lottery' ? `Ball #${bet.tileIndex + 1}` : `Tile #${bet.tileIndex + 1}`}</span>
                                     <span className="font-medium">
                                       {formatAmount(bet.amount)} SOL
                                     </span>
