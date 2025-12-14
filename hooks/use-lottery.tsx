@@ -139,6 +139,12 @@ export function useLottery(machineId: string = 'sol') {
     // Handle round started
     const handleRoundStarted = (data: any) => {
       console.log('[Lottery WS] New round started:', data);
+      // Reset user tickets for the new round (clear stale data from previous round)
+      setUserTickets(prev => prev ? {
+        ...prev,
+        currentRound: null, // Clear current round tickets
+        totalTickets: 0
+      } : null);
       // Request fresh status
       emit('lottery:get_status', { machineId });
     };
