@@ -326,19 +326,19 @@ export default function Pachinko() {
             </div>
           </div>}
 
-          <div className={`flex items-center w-full absolute top-0 z-40 h-[620px] transition-all duration-500 ${!ballsAnimating ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+          <div className={`flex items-center justify-center w-full absolute top-0 left-0 right-0 z-40 h-[620px] transition-all duration-500 ${!ballsAnimating ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             {ballsAnimating ? (
               <img 
                 src="/pachinko-balls.gif" 
                 alt="Pachinko Background" 
-                className="object-cover h-full"
+                className="object-contain h-full max-w-full"
                 key="playing-gif"
               />
             ) : (
               <img 
                 src="/pachinko-balls.gif" 
                 alt="Pachinko Background" 
-                className="object-cover h-full"
+                className="object-contain h-full max-w-full"
                 key="stopped-gif"
                 style={{ animationPlayState: 'paused' }}
               />
