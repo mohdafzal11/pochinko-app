@@ -141,7 +141,7 @@ export default function RoundResultModal({ isOpen, onClose, result }: RoundResul
                   {result.won ? 'YOU WON!' : 'Better Luck Next Time!'}
                 </h2>
                 <p className="text-gray-500">
-                  Round #{result.roundId} • {result.game === 'ore' ? 'ORE Game' : 'Lottery'}
+                  Round #{result.roundId} • {result.game === 'ore' ? 'Blockpad' : 'Pachinko'}
                 </p>
               </motion.div>
 

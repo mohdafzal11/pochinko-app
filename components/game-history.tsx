@@ -125,7 +125,7 @@ export default function GameHistory({ walletAddress, game, apiBaseUrl = '' }: Ga
               <div className="flex items-center justify-between p-4 border-b">
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <History className="w-5 h-5" />
-                  {game === 'ore' ? 'ORE Game' : 'Lottery'} History
+                  {game === 'ore' ? 'Blockpad' : 'Pachinko'} History
                 </h2>
                 <div className="flex items-center gap-2">
                   <Button
