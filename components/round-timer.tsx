@@ -38,29 +38,38 @@ export default function RoundTimer({ round }: RoundTimerProps) {
     if (!round) {
         return (
             <motion.div
-                animate={{ boxShadow: ["0 0 20px #000", "0 0 40px #000", "0 0 20px #000"] }}
+                // animate={{
+                //   boxShadow: ["0 0 20px #000", "0 0 40px #000", "0 0 20px #000"],
+                // }}
                 transition={{ duration: 3, repeat: Infinity }}
                 className="h-20 mx-8 my-2 rounded-lg relative p-[5px]"
                 style={{
-                    background: '#d4b896',
+                    background: "#d4b896",
                 }}
             >
                 <div
                     className="w-full h-full rounded-md relative overflow-hidden"
                     style={{
-                        background: 'linear-gradient(to bottom, #4a4742 0%, #3a3530 20%, #2d2b26 50%, #242220 80%, #1a1815 100%)',
-                        border: '1px solid #2a2520',
+                        background:
+                            "linear-gradient(to bottom, #4a4742 0%, #3a3530 20%, #2d2b26 50%, #242220 80%, #1a1815 100%)",
+                        border: "1px solid #2a2520",
                     }}
                 >
                     <div
                         className="absolute top-0 left-0 right-0 h-[2px]"
                         style={{
-                            background: 'linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)'
+                            background:
+                                "linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent)",
                         }}
                     />
 
-                    <div className="relative z-10 h-full flex items-center justify-center">
-                        <p className="text-[#E0CCA9] font-bold text-lg tracking-wider">WAITING FOR NEXT ROUND...</p>
+                    <div
+                        className="relative z-10 h-full flex items-center justify-center bg-linear-to-r from-[#2B2824] to-[#4A4540]"
+
+                    >
+                        <p className="text-[#E0CCA9] font-bold text-lg tracking-wider">
+                            WAITING FOR NEXT ROUND...
+                        </p>
                     </div>
                 </div>
             </motion.div>

@@ -115,8 +115,16 @@ const GameGrid = ({
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-            className="relative bg-[#EE3E35] w-full max-w-xl mx-auto rounded-[40px] shadow-2xl overflow-hidden
-         border-8 border-black/10 py-2 px-4"
+            className="
+  relative
+  bg-linear-to-r from-[#DE3F3D] to-[#E85A58]
+  w-full max-w-xl mx-auto
+  rounded-[40px]
+  shadow-2xl
+  overflow-hidden
+  py-2 px-4
+"
+            style={{ "border": "8px transparent", "boxShadow": "inset 0 0 10px rgba(139, 68, 68, 0.5)" }}
         >
             {/* Top Bar */}
             <RoundTimer round={round} />
@@ -176,9 +184,15 @@ const GameGrid = ({
                             onMouseLeave={() => setHoveredTile(null)}
                             disabled={isTileDisabled}
                             className={`relative rounded-sm overflow-hidden transition-all duration-300 h-16 w-16 border-[1px] border-[#3d2817]
-                  ${isTileDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}
-                  ${isSelected ? 'ring-4 ring-[#fef08a] ring-offset-2 ring-offset-[#c41e3a]' : ''}
-                  ${isAlreadyBet ? 'ring-2 ring-green-500 ring-offset-1' : ''}
+                  ${isTileDisabled
+                                    ? "cursor-not-allowed opacity-60"
+                                    : "cursor-pointer"
+                                }
+                  ${isSelected
+                                    ? "ring-4 ring-[#fef08a] ring-offset-2 ring-offset-[#c41e3a]"
+                                    : ""
+                                }
+                  ${isAlreadyBet ? "ring-2 ring-green-500 ring-offset-1" : ""}
                 `}
                         >
                             <motion.div
@@ -210,7 +224,10 @@ const GameGrid = ({
                                 {/* Main Number - Always Centered */}
                                 <motion.span
                                     animate={{ scale: isSelected ? [1, 1.25, 1] : 1 }}
-                                    transition={{ duration: 0.6, repeat: isSelected ? Infinity : 0 }}
+                                    transition={{
+                                        duration: 0.6,
+                                        repeat: isSelected ? Infinity : 0,
+                                    }}
                                     className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
                                 >
                                     {/* {tile.position} */}
@@ -223,7 +240,11 @@ const GameGrid = ({
                                             initial={{ scale: 0, rotate: -180 }}
                                             animate={{ scale: 1, rotate: 0 }}
                                             exit={{ scale: 0, rotate: 180 }}
-                                            transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                                            transition={{
+                                                type: "spring",
+                                                stiffness: 500,
+                                                damping: 15,
+                                            }}
                                             className="absolute top-2 right-2 pointer-events-none"
                                         >
                                             <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 drop-shadow-glow animate-pulse" />
@@ -271,34 +292,49 @@ const GameGrid = ({
                                     {
                                         label: "Rounds",
                                         value: stats.roundsPlayed,
-                                        className: "text-kode-monu"
+                                        className: "text-kode-monu",
                                     },
                                     {
                                         label: "Win Rate",
-                                        value: `${stats.roundsPlayed > 0 ? ((stats.totalWins / stats.roundsPlayed) * 100).toFixed(1) : 0}%`,
-                                        className: "text-green-500"
+                                        value: `${stats.roundsPlayed > 0
+                                            ? (
+                                                (stats.totalWins / stats.roundsPlayed) *
+                                                100
+                                            ).toFixed(1)
+                                            : 0
+                                            }%`,
+                                        className: "text-green-500",
                                     },
                                     {
                                         label: "Wagered",
                                         value: `${stats.totalWagered.toFixed(2)} SOL`,
-                                        className: "text-kode-monu"
+                                        className: "text-kode-monu",
                                     },
                                     {
                                         label: "Won",
                                         value: `${stats.totalWinnings.toFixed(2)} SOL`,
-                                        className: stats.totalWinnings > stats.totalWagered ? "text-green-500" : "text-kode-monu"
+                                        className:
+                                            stats.totalWinnings > stats.totalWagered
+                                                ? "text-green-500"
+                                                : "text-kode-monu",
                                     },
                                     {
                                         label: "Net Profit",
-                                        value: `${stats.netProfit >= 0 ? '+' : ''}${stats.netProfit.toFixed(4)} SOL`,
-                                        className: stats.netProfit >= 0 ? "text-green-500" : "text-red-500"
+                                        value: `${stats.netProfit >= 0 ? "+" : ""
+                                            }${stats.netProfit.toFixed(4)} SOL`,
+                                        className:
+                                            stats.netProfit >= 0
+                                                ? "text-green-500"
+                                                : "text-red-500",
                                     },
                                 ].map((item, i) => (
                                     <div
                                         key={i}
                                         className="bg-background border rounded-lg p-3 w-full"
                                     >
-                                        <p className="text-xs text-muted-foreground">{item.label}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {item.label}
+                                        </p>
                                         <p className={`text-sm font-medium ${item.className}`}>
                                             {item.value}
                                         </p>
@@ -310,19 +346,28 @@ const GameGrid = ({
                         <div className="h-[60vh] overflow-y-auto pr-2 w-full">
                             {loading ? (
                                 <div className="flex items-center justify-center h-full">
-                                    <p className="text-muted-foreground">Loading your history...</p>
+                                    <p className="text-muted-foreground">
+                                        Loading your history...
+                                    </p>
                                 </div>
                             ) : rounds.length === 0 ? (
                                 <div className="flex items-center justify-center h-full">
-                                    <p className="text-muted-foreground">No history yet. Time to play!</p>
+                                    <p className="text-muted-foreground">
+                                        No history yet. Time to play!
+                                    </p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
                                     {rounds.map((r) => {
-                                        const myBets = r.playerBets.filter(b => b.walletAddress === walletAddress);
-                                        const won = myBets.some(b => b.won);
+                                        const myBets = r.playerBets.filter(
+                                            (b) => b.walletAddress === walletAddress
+                                        );
+                                        const won = myBets.some((b) => b.won);
                                         const wagered = myBets.reduce((s, b) => s + b.amount, 0);
-                                        const winnings = myBets.reduce((s, b) => s + (b.winnings || 0), 0);
+                                        const winnings = myBets.reduce(
+                                            (s, b) => s + (b.winnings || 0),
+                                            0
+                                        );
 
                                         return (
                                             <motion.div
@@ -340,39 +385,59 @@ const GameGrid = ({
                                                             <X className="w-5 h-5 text-red-500" />
                                                         )}
                                                         <div>
-                                                            <p className="text-sm font-medium">Round #{r.roundId}</p>
+                                                            <p className="text-sm font-medium">
+                                                                Round #{r.roundId}
+                                                            </p>
                                                             <p className="text-xs text-muted-foreground">
-                                                                {new Date(r.endTime).toLocaleDateString('en-US', {
-                                                                    year: "numeric",
-                                                                    month: "short",
-                                                                    day: "numeric",
-                                                                    hour: "2-digit",
-                                                                    minute: "2-digit"
-                                                                })}
+                                                                {new Date(r.endTime).toLocaleDateString(
+                                                                    "en-US",
+                                                                    {
+                                                                        year: "numeric",
+                                                                        month: "short",
+                                                                        day: "numeric",
+                                                                        hour: "2-digit",
+                                                                        minute: "2-digit",
+                                                                    }
+                                                                )}
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <p className={`text-sm font-medium ${won ? "text-green-500" : "text-red-500"}`}>
+                                                    <p
+                                                        className={`text-sm font-medium ${won ? "text-green-500" : "text-red-500"
+                                                            }`}
+                                                    >
                                                         {won ? "+" : "-"}
-                                                        {won ? winnings.toFixed(4) : wagered.toFixed(4)} SOL
+                                                        {won
+                                                            ? winnings.toFixed(4)
+                                                            : wagered.toFixed(4)}{" "}
+                                                        SOL
                                                     </p>
                                                 </div>
 
                                                 {/* Your Bets */}
                                                 {myBets.length > 0 && (
                                                     <div>
-                                                        <p className="text-xs text-muted-foreground font-semibold mb-2">Your Bets:</p>
+                                                        <p className="text-xs text-muted-foreground font-semibold mb-2">
+                                                            Your Bets:
+                                                        </p>
 
                                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                             {myBets.map((bet, idx) => (
                                                                 <div
                                                                     key={idx}
-                                                                    className={`bg-muted/50 p-2 rounded-lg ${bet.won ? "bg-green-500/10" : ""}`}
+                                                                    className={`bg-muted/50 p-2 rounded-lg ${bet.won ? "bg-green-500/10" : ""
+                                                                        }`}
                                                                 >
-                                                                    <p className="text-xs text-muted-foreground">Tile #{bet.tileIndex + 1}</p>
-                                                                    <p className="text-sm font-medium">{bet.amount.toFixed(4)} SOL</p>
+                                                                    <p className="text-xs text-muted-foreground">
+                                                                        Tile #{bet.tileIndex + 1}
+                                                                    </p>
+                                                                    <p className="text-sm font-medium">
+                                                                        {bet.amount.toFixed(4)} SOL
+                                                                    </p>
                                                                     {bet.won && bet.winnings !== undefined && (
-                                                                        <p className="text-xs text-green-500">Won: +{bet.winnings.toFixed(4)} SOL</p>
+                                                                        <p className="text-xs text-green-500">
+                                                                            Won: +{bet.winnings.toFixed(4)} SOL
+                                                                        </p>
                                                                     )}
                                                                 </div>
                                                             ))}
@@ -383,20 +448,36 @@ const GameGrid = ({
                                                 {/* Stats Grid */}
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-sm">
                                                     <div className="bg-muted/50 p-2 rounded-lg text-center">
-                                                        <p className="text-muted-foreground text-xs">Winner</p>
-                                                        <p className="font-medium">#{(r.winningTile ?? 0) + 1}</p>
+                                                        <p className="text-muted-foreground text-xs">
+                                                            Winner
+                                                        </p>
+                                                        <p className="font-medium">
+                                                            #{(r.winningTile ?? 0) + 1}
+                                                        </p>
                                                     </div>
                                                     <div className="bg-muted/50 p-2 rounded-lg text-center">
-                                                        <p className="text-muted-foreground text-xs">Prize</p>
-                                                        <p className="font-medium">{r.prizePool.toFixed(2)} SOL</p>
+                                                        <p className="text-muted-foreground text-xs">
+                                                            Prize
+                                                        </p>
+                                                        <p className="font-medium">
+                                                            {r.prizePool.toFixed(2)} SOL
+                                                        </p>
                                                     </div>
                                                     <div className="bg-muted/50 p-2 rounded-lg text-center">
-                                                        <p className="text-muted-foreground text-xs">Players</p>
-                                                        <p className="font-medium">{r.playerCount || 0}</p>
+                                                        <p className="text-muted-foreground text-xs">
+                                                            Players
+                                                        </p>
+                                                        <p className="font-medium">
+                                                            {r.playerCount || 0}
+                                                        </p>
                                                     </div>
                                                     <div className="bg-muted/50 p-2 rounded-lg text-center">
-                                                        <p className="text-muted-foreground text-xs">Volume</p>
-                                                        <p className="font-medium">{(r.totalVolume || 0).toFixed(2)} SOL</p>
+                                                        <p className="text-muted-foreground text-xs">
+                                                            Volume
+                                                        </p>
+                                                        <p className="font-medium">
+                                                            {(r.totalVolume || 0).toFixed(2)} SOL
+                                                        </p>
                                                     </div>
                                                 </div>
 
@@ -426,9 +507,6 @@ const GameGrid = ({
                     </div>
                 </DialogContent>
             </Dialog>
-
-
-
 
             {/* Bottom Section - Bet Input + Place Bet */}
             <motion.div
@@ -463,18 +541,15 @@ const GameGrid = ({
                         >
                             <motion.div
                                 animate={{
-                                    backgroundColor: "#e8d4b8"
+                                    backgroundColor: "#e8d4b8",
                                 }}
                                 className="absolute inset-0"
                             />
 
                             <div className="relative h-full flex flex-col items-center justify-center p-3">
-                                <motion.span
-                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
-                                >
+                                <motion.span className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10">
                                     {/* {tile.position} */}
                                 </motion.span>
-
                             </div>
                         </motion.div>
                         <motion.div
@@ -487,18 +562,15 @@ const GameGrid = ({
                         >
                             <motion.div
                                 animate={{
-                                    backgroundColor: "#e8d4b8"
+                                    backgroundColor: "#e8d4b8",
                                 }}
                                 className="absolute inset-0"
                             />
 
                             <div className="relative h-full flex flex-col items-center justify-center p-3">
-                                <motion.span
-                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
-                                >
+                                <motion.span className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10">
                                     {/* {tile.position} */}
                                 </motion.span>
-
                             </div>
                         </motion.div>
                         <motion.div
@@ -511,25 +583,20 @@ const GameGrid = ({
                         >
                             <motion.div
                                 animate={{
-                                    backgroundColor: "#e8d4b8"
+                                    backgroundColor: "#e8d4b8",
                                 }}
                                 className="absolute inset-0"
                             />
 
                             <div className="relative h-full flex flex-col items-center justify-center p-3">
-                                <motion.span
-                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
-                                >
+                                <motion.span className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10">
                                     {/* {tile.position} */}
                                 </motion.span>
-
                             </div>
                         </motion.div>
                     </div>
-
                 </div>
             </motion.div>
-
         </motion.div>
     );
 };
