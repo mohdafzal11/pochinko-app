@@ -14,6 +14,7 @@ interface RoundResultProps {
     roundId: number;
     winningTile?: number;
     playerTile?: number;
+    playerTiles?: number[]; // All tiles the player bet on
     game: 'ore' | 'lottery';
     motherlodeHit?: boolean;
   } | null;
@@ -175,10 +176,14 @@ export default function RoundResultModal({ isOpen, onClose, result }: RoundResul
                     <p className="text-gray-500">Winning Tile</p>
                     <p className="text-2xl font-bold text-green-600">#{(result.winningTile ?? 0) + 1}</p>
                   </div>
-                  {result.playerTile !== undefined && !result.won && (
+                  {!result.won && (result.playerTiles?.length || result.playerTile !== undefined) && (
                     <div className="text-center">
-                      <p className="text-gray-500">Your Tile</p>
-                      <p className="text-2xl font-bold text-gray-600">#{result.playerTile + 1}</p>
+                      <p className="text-gray-500">Your Tiles</p>
+                      <p className="text-2xl font-bold text-gray-600">
+                        {result.playerTiles && result.playerTiles.length > 0
+                          ? result.playerTiles.map(t => `#${t + 1}`).join(', ')
+                          : result.playerTile !== undefined ? `#${result.playerTile + 1}` : ''}
+                      </p>
                     </div>
                   )}
                 </motion.div>

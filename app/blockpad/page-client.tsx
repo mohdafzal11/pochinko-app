@@ -52,6 +52,7 @@ export default function Blockpad() {
     roundId: number;
     winningTile?: number;
     playerTile?: number;
+    playerTiles?: number[];
     game: 'ore' | 'lottery';
     motherlodeHit?: boolean;
   } | null>(null);
@@ -208,7 +209,7 @@ export default function Blockpad() {
     };
 
     // Handle player-specific loss notification
-    const handlePlayerLoss = (data: { roundId: number; winningTile: number; playerTile: number; betAmount: number; game: string }) => {
+    const handlePlayerLoss = (data: { roundId: number; winningTile: number; playerTile: number; playerTiles?: number[]; betAmount: number; game: string }) => {
       console.log('😢 Player loss received:', data);
 
       // If we already recorded a win for this round, do not override it with a loss
@@ -221,6 +222,7 @@ export default function Blockpad() {
           roundId: data.roundId,
           winningTile: data.winningTile,
           playerTile: data.playerTile,
+          playerTiles: data.playerTiles, // All tiles player bet on
           game: 'ore',
         };
       });
