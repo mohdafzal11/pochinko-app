@@ -157,7 +157,7 @@ const GameGrid = ({
             } */}
 
             {/* 5×5 Grid */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-1 sm:gap-2 md:gap-3 px-8  md:px-12 lg:px-16 py-2">
+            <div className="grid grid-cols-5 grid-rows-5 gap-1 sm:gap-2 md:gap-3 px-10  md:px-12 lg:px-16 py-2">
                 {tiles.map((tile, index) => {
                     const isSelected = selectedTiles.includes(tile.id);
                     const isHovered = hoveredTile === tile.id;
@@ -184,7 +184,7 @@ const GameGrid = ({
                             onMouseLeave={() => setHoveredTile(null)}
                             disabled={isTileDisabled}
                             className={`relative rounded-sm overflow-hidden transition-all duration-300 
-                    h-16 w-16 border-[1px] border-[#3d2817]
+                    h-12 w-12 md:h-16 md:w-16 border-[1px] border-[#3d2817]
                     ${isTileDisabled
                                     ? "cursor-not-allowed opacity-60"
                                     : "cursor-pointer"
@@ -283,14 +283,14 @@ const GameGrid = ({
             >
                 <div className="flex items-center justify-between gap-4 px-6 py-2">
                     <div className="flex-1 text-center sm:text-left">
-                        <motion.p className="outline-text text-3xl tracking-wide">
+                        <motion.p className="outline-text text-2xl md:text-3xl tracking-wide">
                             ブロックパッド
                         </motion.p>
 
                         <motion.p
                             initial={{ x: -50 }}
                             animate={{ x: 0 }}
-                            className="text-5xl  text-[#E2CEAB] font-black tracking-widest drop-shadow-2xl"
+                            className="text-4xl md:text-5xl  text-[#E2CEAB] font-black tracking-widest drop-shadow-2xl"
                         >
                             BLOCKPAD
                         </motion.p>
