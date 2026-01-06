@@ -495,6 +495,7 @@ export default function Blockpad() {
   };
 
   return (
+    
     <div className="min-h-screen font-mono">
       <main className="relative w-full mx-auto px-4 lg:px-8 pt-12 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-4 items-start">
 

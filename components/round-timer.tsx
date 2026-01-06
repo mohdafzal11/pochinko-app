@@ -47,6 +47,7 @@ export default function RoundTimer({ round }: RoundTimerProps) {
                     background: "#d4b896",
                 }}
             >
+                
                 <div
                     className="w-full h-full rounded-md relative overflow-hidden"
                     style={{

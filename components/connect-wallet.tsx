@@ -103,7 +103,7 @@ const ConnectWallet = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setVisible(true)}
-        className="bg-black text-white rounded-full h-[38px] px-5 hover:bg-gray-800 transition font-medium"
+        className="bg-black text-white rounded-full min-h-[38px] px-5 hover:bg-gray-800 transition font-medium min-w-0"
       >
         Connect Wallet
       </motion.button>

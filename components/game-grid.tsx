@@ -117,14 +117,14 @@ const GameGrid = ({
             transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
             className="
   relative
-  bg-linear-to-r from-[#DE3F3D] to-[#E85A58]
+  bg-linear-to-r from-[#EE3229] to-[#E76862]
   w-full max-w-xl mx-auto
   rounded-[40px]
   shadow-2xl
   overflow-hidden
   py-2 px-4
 "
-            style={{ "border": "8px transparent", "boxShadow": "inset 0 0 10px rgba(139, 68, 68, 0.5)" }}
+            style={{ "border": "12px transparent", "boxShadow": "inset 0 0 10px rgba(139, 68, 68, 0.5)" }}
         >
             {/* Top Bar */}
             <RoundTimer round={round} />
@@ -157,121 +157,122 @@ const GameGrid = ({
             } */}
 
             {/* 5×5 Grid */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-3 px-12 sm:px-16 py-2">
-                {tiles.map((tile, index) => {
-                    const isSelected = selectedTiles.includes(tile.id);
-                    const isHovered = hoveredTile === tile.id;
-                    const hasBets = tile.bets > 0;
-                    const isAlreadyBet = alreadyBetTiles.includes(tile.id);
-                    const isTileDisabled = disabled || isAlreadyBet;
+            <div className="grid grid-cols-5 grid-rows-5 gap-1 sm:gap-2 md:gap-3 px-2 sm:px-8 md:px-12 lg:px-16 py-2">
+    {tiles.map((tile, index) => {
+        const isSelected = selectedTiles.includes(tile.id);
+        const isHovered = hoveredTile === tile.id;
+        const hasBets = tile.bets > 0;
+        const isAlreadyBet = alreadyBetTiles.includes(tile.id);
+        const isTileDisabled = disabled || isAlreadyBet;
 
-                    return (
-                        <motion.button
-                            key={tile.id}
-                            layout
-                            initial={{ opacity: 0, y: 60, scale: 0.8 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            transition={{
-                                delay: index * 0.02,
-                                type: "spring",
-                                stiffness: 800,
-                                damping: 14,
-                            }}
-                            whileHover={!isTileDisabled ? { scale: 1.18, y: -10 } : {}}
-                            whileTap={!isTileDisabled ? { scale: 0.95 } : {}}
-                            onClick={() => !isTileDisabled && onTileToggle(tile.id)}
-                            onMouseEnter={() => !isTileDisabled && setHoveredTile(tile.id)}
-                            onMouseLeave={() => setHoveredTile(null)}
-                            disabled={isTileDisabled}
-                            className={`relative rounded-sm overflow-hidden transition-all duration-300 h-16 w-16 border-[1px] border-[#3d2817]
-                  ${isTileDisabled
-                                    ? "cursor-not-allowed opacity-60"
-                                    : "cursor-pointer"
-                                }
-                  ${isSelected
-                                    ? "ring-4 ring-[#fef08a] ring-offset-2 ring-offset-[#c41e3a]"
-                                    : ""
-                                }
-                  ${isAlreadyBet ? "ring-2 ring-green-500 ring-offset-1" : ""}
+        return (
+            <motion.button
+                key={tile.id}
+                layout
+                initial={{ opacity: 0, y: 60, scale: 0.8 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{
+                    delay: index * 0.02,
+                    type: "spring",
+                    stiffness: 800,
+                    damping: 14,
+                }}
+                whileHover={!isTileDisabled ? { scale: 1.18, y: -10 } : {}}
+                whileTap={!isTileDisabled ? { scale: 0.95 } : {}}
+                onClick={() => !isTileDisabled && onTileToggle(tile.id)}
+                onMouseEnter={() => !isTileDisabled && setHoveredTile(tile.id)}
+                onMouseLeave={() => setHoveredTile(null)}
+                disabled={isTileDisabled}
+                className={`relative rounded-sm overflow-hidden transition-all duration-300 
+                    h-16 w-16 border-[1px] border-[#3d2817]
+                    ${isTileDisabled
+                        ? "cursor-not-allowed opacity-60"
+                        : "cursor-pointer"
+                    }
+                    ${isSelected
+                        ? "ring-4 ring-[#fef08a] ring-offset-2 ring-offset-[#c41e3a]"
+                        : ""
+                    }
+                    ${isAlreadyBet ? "ring-2 ring-green-500 ring-offset-1" : ""}
                 `}
-                        >
+            >
+                <motion.div
+                    animate={{
+                        backgroundColor: isAlreadyBet
+                            ? "#86efac"
+                            : isSelected
+                                ? "#fde68a"
+                                : isHovered && !isTileDisabled
+                                    ? "#fde68a"
+                                    : "#e8d4b8",
+                    }}
+                    className="absolute inset-0"
+                />
+
+                <AnimatePresence>
+                    {isSelected && (
+                        <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1.4, opacity: 0 }}
+                            exit={{ scale: 1.6, opacity: 0 }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                            className="absolute inset-0 rounded-xl bg-[#fef08a]/50"
+                        />
+                    )}
+                </AnimatePresence>
+
+                <div className="relative h-full flex flex-col items-center justify-center p-3">
+                    {/* Main Number - Always Centered */}
+                    <motion.span
+                        animate={{ scale: isSelected ? [1, 1.25, 1] : 1 }}
+                        transition={{
+                            duration: 0.6,
+                            repeat: isSelected ? Infinity : 0,
+                        }}
+                        className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
+                    >
+                        {/* {tile.position} */}
+                    </motion.span>
+
+                    {/* Sparkles Icon - Absolute, Never Affects Layout */}
+                    <AnimatePresence>
+                        {isSelected && (
                             <motion.div
-                                animate={{
-                                    backgroundColor: isAlreadyBet
-                                        ? "#86efac" // Green for already bet
-                                        : isSelected
-                                            ? "#fde68a"
-                                            : isHovered && !isTileDisabled
-                                                ? "#fde68a"
-                                                : "#e8d4b8",
+                                initial={{ scale: 0, rotate: -180 }}
+                                animate={{ scale: 1, rotate: 0 }}
+                                exit={{ scale: 0, rotate: 180 }}
+                                transition={{
+                                    type: "spring",
+                                    stiffness: 500,
+                                    damping: 15,
                                 }}
-                                className="absolute inset-0"
-                            />
+                                className="absolute top-2 right-2 pointer-events-none"
+                            >
+                                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 drop-shadow-glow animate-pulse" />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                            <AnimatePresence>
-                                {isSelected && (
-                                    <motion.div
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1.4, opacity: 0 }}
-                                        exit={{ scale: 1.6, opacity: 0 }}
-                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                        className="absolute inset-0 rounded-xl bg-[#fef08a]/50"
-                                    />
-                                )}
-                            </AnimatePresence>
-
-                            <div className="relative h-full flex flex-col items-center justify-center p-3">
-                                {/* Main Number - Always Centered */}
-                                <motion.span
-                                    animate={{ scale: isSelected ? [1, 1.25, 1] : 1 }}
-                                    transition={{
-                                        duration: 0.6,
-                                        repeat: isSelected ? Infinity : 0,
-                                    }}
-                                    className="text-lg md:text-2xl font-black text-[#c41e3a] drop-shadow-lg z-10"
-                                >
-                                    {/* {tile.position} */}
-                                </motion.span>
-
-                                {/* Sparkles Icon - Absolute, Never Affects Layout */}
-                                <AnimatePresence>
-                                    {isSelected && (
-                                        <motion.div
-                                            initial={{ scale: 0, rotate: -180 }}
-                                            animate={{ scale: 1, rotate: 0 }}
-                                            exit={{ scale: 0, rotate: 180 }}
-                                            transition={{
-                                                type: "spring",
-                                                stiffness: 500,
-                                                damping: 15,
-                                            }}
-                                            className="absolute top-2 right-2 pointer-events-none"
-                                        >
-                                            <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-yellow-400 drop-shadow-glow animate-pulse" />
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-
-                                {/* Bets Counter - Only When Has Bets */}
-                                <AnimatePresence>
-                                    {hasBets && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, y: -8 }}
-                                            className="flex flex-col items-center z-10"
-                                        >
-                                            <span className="text-[10px] text-[#c41e3a]/80 font-medium">
-                                                {tile.volume.toFixed(2)} SOL
-                                            </span>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </motion.button>
-                    );
-                })}
-            </div>
+                    {/* Bets Counter - Only When Has Bets */}
+                    <AnimatePresence>
+                        {hasBets && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -8 }}
+                                className="flex flex-col items-center z-10"
+                            >
+                                <span className="text-[10px] text-[#c41e3a]/80 font-medium">
+                                    {tile.volume.toFixed(2)} SOL
+                                </span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+            </motion.button>
+        );
+    })}
+</div>
 
             {/* HISTORY MODAL */}
             <Dialog open={isHistoryOpen} onOpenChange={setIsHistoryOpen}>
