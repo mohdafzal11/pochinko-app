@@ -19,7 +19,7 @@ import RoundResultModal from '@/components/round-result-modal';
 export default function Blockpad() {
 
   const { isConnected: wsConnected, emit, on, off } = useWebSocket();
-  const { isConnected: walletConnected, balance, publicKey } = useSolanaWallet();
+  const { isConnected: walletConnected, balance, publicKey, updateBalance } = useSolanaWallet();
 
   // Use unified wallet for game balance
   const {
@@ -454,6 +454,11 @@ export default function Blockpad() {
     const success = await unifiedDeposit(amount);
     if (success) {
       toast.success(`✅ Deposited ${amount} SOL to unified wallet!`);
+      // Refresh both wallet and unified wallet balances
+      setTimeout(() => {
+        updateBalance();
+        refreshUnifiedBalance();
+      }, 1500);
     }
   };
 
@@ -471,6 +476,11 @@ export default function Blockpad() {
     const success = await unifiedWithdraw(amount);
     if (success) {
       toast.success(`✅ Withdrawn ${amount} SOL from unified wallet!`);
+      // Refresh both wallet and unified wallet balances
+      setTimeout(() => {
+        updateBalance();
+        refreshUnifiedBalance();
+      }, 1500);
     }
   };
 
