@@ -123,21 +123,7 @@ export default function RoundTimer({ round }: RoundTimerProps) {
                             <span className="text-xl font-black">{round.prizePool.toFixed(2)}</span>
                         </div>
                     </div>
-                </div>
-
-                {/* Status Badge */}
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-20">
-                    <span className={`
-                        px-4 py-1 rounded-full text-xs font-bold tracking-wider
-                        ${round.status === 'active' ? 'bg-green-500/30 text-green-300' : ''}
-                        ${round.status === 'idle' ? 'bg-yellow-600/40 text-yellow-300' : ''}
-                        ${round.status === 'finalizing' ? 'bg-purple-600/40 text-purple-300 animate-pulse' : ''}
-                    `}>
-                        {round.status === 'active' && '● LIVE'}
-                        {round.status === 'idle' && 'WAITING...'}
-                        {round.status === 'finalizing' && 'FINALIZING...'}
-                    </span>
-                </div>
+                </div>               
             </div>
         </motion.div>
     );
