@@ -760,12 +760,16 @@ export default function Blockpad() {
       </main>
 
       {/* Prize Pool*/}
-      <div className="absolute bottom-0 w-full py-4 bg-[#D9D9D9]">
-        <div className="mx-auto px-8 flex items-center justify-center gap-10 sm:gap-20 text-center">
-          <p className="text-gray-600 font-semibold text-xl md:text-2xl">TODAY'S PRIZE POOL</p>
-          <span className="text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
-          <span className="hidden md:block text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
-          <span className="hidden lg:block text-xl md:text-3xl lg:text-4xl text-orange-500">+$20,000</span>
+      <div className="absolute bottom-0 w-full py-4 bg-[#D9D9D9] overflow-hidden">
+        <div className="flex items-center">
+          <p className="text-gray-600 font-semibold text-xl md:text-2xl whitespace-nowrap px-4 shrink-0">TODAY'S PRIZE POOL</p>
+          <div className="overflow-hidden flex-1">
+            <div className="flex animate-marquee whitespace-nowrap">
+              {[...Array(10)].map((_, i) => (
+                <span key={i} className="text-xl md:text-3xl lg:text-4xl text-orange-500 mx-8">+$20,000</span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -105,18 +105,41 @@ export default function Pachinko() {
     return () => clearInterval(interval);
   }, [status?.currentRound, ballsAnimating]);
 
+  // Track previous round number to detect new rounds
+  const [prevRoundNumber, setPrevRoundNumber] = useState<number | null>(null);
+
   useEffect(() => {
     console.log("Status updated:", status);
     console.log("Balls animating:", ballsAnimating);
     
-    if (status?.currentRound && 
+    // Early return if no status
+    if (!status) return;
+    
+    // Detect new round starting - reset animation
+    if (status.currentRound?.roundNumber && 
+        prevRoundNumber !== null && 
+        status.currentRound.roundNumber > prevRoundNumber &&
+        status.currentRound.status === 'Active') {
+      console.log("New round detected - resetting animation");
+      setBallsAnimating(false);
+      setShowResult(false);
+      setRoundResult(null);
+    }
+    
+    // Update previous round number
+    if (status.currentRound?.roundNumber !== prevRoundNumber) {
+      setPrevRoundNumber(status.currentRound?.roundNumber || null);
+    }
+    
+    // Round ended - stop animation and check results
+    if (status.currentRound && 
         status.currentRound.status !== 'Active' && 
         ballsAnimating) {
       console.log("Round ended - checking results");
       setBallsAnimating(false);
       checkRoundResult();
     }
-  }, [status, ballsAnimating]);
+  }, [status, ballsAnimating, prevRoundNumber]);
 
   // Handle WebSocket round finalization result
   useEffect(() => {
@@ -127,6 +150,7 @@ export default function Pachinko() {
       );
       
       if (userWin) {
+        console.log("🎉 USER WON LOTTERY!", userWin);
         setRoundResult({
           won: true,
           amount: userWin.prize,
@@ -134,14 +158,26 @@ export default function Pachinko() {
         });
         setShowResult(true);
         setBallsAnimating(false);
+        
+        // Show toast notification
+        toast.success('🎉 Congratulations!', {
+          description: `You won ${(userWin.prize / 1e9).toFixed(4)} SOL in Round #${lastRoundResult.roundNumber}!`,
+          duration: 5000,
+        });
       } else if (userTickets?.currentRound?.ticketCount && userTickets.currentRound.ticketCount > 0) {
-        // User had tickets but didn't win
+        console.log("😢 User participated but didn't win");
         setRoundResult({
           won: false,
           roundNumber: lastRoundResult.roundNumber
         });
         setShowResult(true);
         setBallsAnimating(false);
+        
+        // Show toast notification
+        toast.info('Round Complete', {
+          description: `Round #${lastRoundResult.roundNumber} ended. Better luck next time!`,
+          duration: 3000,
+        });
       }
     }
   }, [lastRoundResult, publicKey, userTickets]);
@@ -543,7 +579,7 @@ export default function Pachinko() {
             )}
           </AnimatePresence>
 
-          {/* Round Result Modal */}
+          {/* Lottery Result Modal */}
           <AnimatePresence>
             {showResult && roundResult && (
               <motion.div
@@ -567,53 +603,87 @@ export default function Pachinko() {
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
 
-                  <div className="text-center space-y-6">
-                    {/* Result Icon */}
-                    <div className="flex justify-center">
-                      {roundResult.won ? (
+                  {roundResult.won ? (
+                    <>
+                      {/* Win State */}
+                      <div className="text-center">
+                        <motion.div
+                          initial={{ scale: 0, rotate: -180 }}
+                          animate={{ scale: 1, rotate: 0 }}
+                          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                          className="w-24 h-24 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg"
+                        >
+                          <Trophy className="w-12 h-12 text-white" />
+                        </motion.div>
+                        <motion.h2 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600 mb-2"
+                        >
+                          WINNER!
+                        </motion.h2>
+                        <p className="text-gray-600 mb-4 font-medium">Your balls hit the jackpot!</p>
+                        
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.4 }}
+                          className="bg-gradient-to-r from-yellow-50 via-orange-50 to-red-50 rounded-xl p-6 mb-6 border-2 border-orange-200"
+                        >
+                          <p className="text-sm text-gray-600 mb-2 font-semibold">Prize Amount</p>
+                          <p className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-600 to-orange-600 mb-2">
+                            {roundResult.amount ? `${(roundResult.amount / 1e9).toFixed(4)}` : '0.0000'}
+                          </p>
+                          <p className="text-2xl font-bold text-orange-600">SOL</p>
+                          
+                          <div className="mt-4 pt-4 border-t border-orange-200">
+                            <p className="text-xs text-gray-500">Round #{roundResult.roundNumber || status?.currentRound?.roundNumber}</p>
+                            <p className="text-xs text-gray-500 mt-1">Lottery: {currentMachine?.name || 'SOL'}</p>
+                            {userTickets?.currentRound?.ticketCount && (
+                              <p className="text-xs text-gray-500 mt-1">Your Balls: {userTickets.currentRound.ticketCount}</p>
+                            )}
+                          </div>
+                        </motion.div>
+                        
+                        <p className="text-sm text-green-600 font-medium mb-4">Prize credited to your unified wallet</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Loss State */}
+                      <div className="text-center">
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                          className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center"
+                          transition={{ delay: 0.2, type: "spring" }}
+                          className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg"
                         >
-                          <Trophy className="w-10 h-10 text-green-600" />
+                          <Ticket className="w-10 h-10 text-white" />
                         </motion.div>
-                      ) : (
-                        <motion.div
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                          className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center"
-                        >
-                          <TrendingDown className="w-10 h-10 text-gray-600" />
-                        </motion.div>
-                      )}
-                    </div>
-
-                    {/* Result Text */}
-                    <div className="space-y-2">
-                      <h2 className={`text-3xl font-bold ${roundResult.won ? 'text-green-600' : 'text-gray-600'}`}>
-                        {roundResult.won ? 'YOU WON!' : 'Better Luck Next Time!'}
-                      </h2>
-                      <p className="text-gray-600">
-                        Round #{roundResult.roundNumber}
-                      </p>
-                      {roundResult.won && roundResult.amount && (
-                        <p className="text-2xl font-bold text-green-600">
-                          {roundResult.amount.toFixed(4)} SOL
-                        </p>
-                      )}
-                    </div>
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Round Complete</h2>
+                        <p className="text-gray-600 mb-6">Your balls didn't win this time, but keep trying!</p>
+                        
+                        <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                          <p className="text-sm text-gray-600 mb-2">Round #{roundResult.roundNumber || status?.currentRound?.roundNumber}</p>
+                          <p className="text-sm text-gray-600">Lottery: {currentMachine?.name || 'SOL'}</p>
+                          {userTickets?.currentRound?.ticketCount && (
+                            <p className="text-sm text-gray-600 mt-1">Your Balls: {userTickets.currentRound.ticketCount}</p>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-blue-600 font-medium">Buy more balls for the next round!</p>
+                      </div>
+                    </>
+                  )}
 
                     {/* Action Button */}
                     <Button
                       onClick={() => setShowResult(false)}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold"
+                      className="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 rounded-lg font-semibold shadow-lg"
                     >
-                      Continue Playing
+                      {roundResult.won ? 'Play Again' : 'Try Again'}
                     </Button>
-                  </div>
                 </motion.div>
               </motion.div>
             )}

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useUnifiedWallet } from '@/hooks/use-unified-wallet';
+import useMarketplace from '@/hooks/use-marketplace';
 import { authFetch, getAuthStatus, authenticate } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3920';
@@ -92,6 +93,9 @@ export default function Marketplace() {
     loading: walletLoading,
     fetchBalance: refreshBalance,
   } = useUnifiedWallet();
+
+  // Use marketplace hook for on-chain transactions
+  const { buyBall: buyBallOnChain } = useMarketplace();
 
   // Fetch marketplace listings
   const fetchListings = useCallback(async () => {
@@ -179,8 +183,8 @@ export default function Marketplace() {
     }
   };
 
-  // Buy ball
-  const handleBuy = async (listingItem: Listing) => {
+  // Buy a ball (on-chain with server authorization)
+  const handleBuyBall = async (listingItem: Listing) => {
     if (!publicKey) {
       toast.error('Please connect your wallet');
       return;
@@ -198,27 +202,27 @@ export default function Marketplace() {
     }
 
     setBuying(listingItem.id);
+    toast.info('Preparing transaction...');
+    
     try {
-      const response = await authFetch('/marketplace/buy', {
-        method: 'POST',
-        body: JSON.stringify({
-          buyerWallet: publicKey.toString(),
-          listingId: listingItem.id,
-        }),
-      });
+      const result = await buyBallOnChain(listingItem.id);
 
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success(`Successfully purchased Ball #${listingItem.ballId}!`);
+      if (result.success) {
+        toast.success(
+          <div>
+            <div className="font-bold">Ball #{listingItem.ballId} purchased!</div>
+            <div className="text-xs opacity-80 mt-1">Transaction: {result.txSignature?.slice(0, 8)}...</div>
+          </div>
+        );
         fetchListings();
         fetchStats();
         fetchInventory();
         refreshBalance();
       } else {
-        toast.error(data.error || 'Purchase failed');
+        toast.error(result.message || 'Purchase failed');
       }
     } catch (error: any) {
+      console.error('Purchase error:', error);
       toast.error(error.message || 'Purchase failed');
     } finally {
       setBuying(null);
@@ -625,7 +629,7 @@ export default function Marketplace() {
                                       ? 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white'
                                       : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                     }`}
-                                  onClick={() => handleBuy(listingItem)}
+                                  onClick={() => handleBuyBall(listingItem)}
                                   disabled={!publicKey || buying === listingItem.id || !canAfford}
                                 >
                                   {buying === listingItem.id ? (
