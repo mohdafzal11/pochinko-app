@@ -600,8 +600,25 @@ export default function Blockpad() {
                 </button>
 
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-gray-800">Game Controls</h2>
+                  <div className="">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Game Controls</h2>
+                    {/* Status Badge */}
+                    <div className="flex justify-start">
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap ${
+                        currentRound?.status === 'active' 
+                          ? 'bg-green-100 text-green-700' 
+                          : currentRound?.status === 'idle' 
+                            ? 'bg-yellow-100 text-yellow-700'
+                            : currentRound?.status === 'finalizing'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {currentRound?.status === 'active' ? 'Active' 
+                          : currentRound?.status === 'idle' ? 'Waiting for First Bet'
+                          : currentRound?.status === 'finalizing' ? 'Finalizing'
+                          : currentRound?.status ?? 'Unknown'}
+                      </span>
+                    </div>
                   </div>
 
                   <motion.div
